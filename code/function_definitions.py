@@ -130,7 +130,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     # verb_embeddings is a map: lemma of the verb v -> [context_reprs_negated, context_reprs_affirmative]
 
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
-    verb_embeddings = {} # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
+    verb_embeddings = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
     for sentence in dependency_trees:
 
