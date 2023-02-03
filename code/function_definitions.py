@@ -129,7 +129,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
     # verb_embeddings is a map: lemma of the verb v -> [context_reprs_negated, context_reprs_affirmative]
 
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
-    verb_embeddings: Dict[str, [List[List[torch.Tensor]], List[List[torch.Tensor]]]] = {}
+    verb_embeddings: Dict[str, [List[torch.Tensor], List[torch.Tensor]]] = {}
 
     for sentence in dependency_trees:
 
@@ -160,13 +160,13 @@ def get_contextual_embeddings(path: str, tokenizer, model):
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
 
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
-                verb_embeddings[lemma][1].append(representations.last_hindexden_state[0, start:end, :])
+                verb_embeddings[lemma][1] += representations.last_hindexden_state[0, start:end, :]
             elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
                 # bigger than or equal to the number of auxiliaries
-                verb_embeddings[lemma][0].append(representations.last_hidden_state[0, start:end, :])
+                verb_embeddings[lemma][0] += representations.last_hidden_state[0, start:end, :]
             else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
-                verb_embeddings[lemma][0].append(representations.last_hidden_state[0, start:end, :])
-                verb_embeddings[lemma][1].append(representations.last_hidden_state[0, start:end, :])
+                verb_embeddings[lemma][0] += representations.last_hidden_state[0, start:end, :]
+                verb_embeddings[lemma][1] += representations.last_hidden_state[0, start:end, :]
 
     # we have exited the first loop, everything we need is in verb_embeddings
     return verb_embeddings
