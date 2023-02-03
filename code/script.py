@@ -17,7 +17,7 @@ model = AutoModel.from_pretrained("roberta-base")
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 model.to(device)
 
-verb_embeddings: Dict[str, [List[torch.Tensor], List[torch.Tensor]]] = {}
+verb_embeddings = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
 for page in dataset[:1]:
     page_text = page['text']
