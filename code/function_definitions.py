@@ -1,5 +1,5 @@
 import conllu
-from typing import List, Dict
+from typing import List
 
 
 def txt_to_conll(text: str, nlp):
