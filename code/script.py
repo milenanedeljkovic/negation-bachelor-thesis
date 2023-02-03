@@ -14,6 +14,12 @@ from datasets import load_dataset
 nlp = init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 model = AutoModel.from_pretrained('roberta-base')
+
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+model.to(device)
+
+
+
 data = load_dataset("bigscience-data/roots-en-wikipedia", use_auth_token=True)
 
 verb_embeddings: Dict[str, [List[torch.Tensor], List[torch.Tensor]]] = {}
@@ -22,7 +28,7 @@ for page in data:
     page_text = page['text']
     with open("current_page.conll", "w") as file:
         file.write(txt_to_conll(page_text, nlp))
-    current_embeddings = get_contextual_embeddings("current_page.conll", tokenizer, model)
+    current_embeddings = get_contextual_embeddings("current_page.conll", tokenizer, model, device)
 
     # do any stats we need here
 

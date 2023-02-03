@@ -68,11 +68,12 @@ def stanza_to_bert_tokens(sentence: conllu.models.TokenList, bert_tokenization, 
     return token_map
 
 
-def get_contextual_embeddings(path: str, tokenizer, model):
+def get_contextual_embeddings(path: str, tokenizer, model, device):
     """
     Input:
     - path: the location of the .conll file containing dependency trees for each sentence of the text we are analysing
     - tokenizer, model: the tokenizer and the model we will use for contextual representation
+    - device: indicates whether we are on GPU or on CPU
 
     Output:
     - a dictionary mapping each verb lemma to its v- and v+ representations (look into the code for a more detailed explanation)
@@ -137,8 +138,8 @@ def get_contextual_embeddings(path: str, tokenizer, model):
 
         # tokenizing and encoding of the original sentence using RoBERTa
         bert_tokens = tokenizer(sentence_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True)['input_ids']
-        representations = model(bert_tokens, output_attentions=True, output_hidden_states=True,
+                                max_length=512, padding=True, truncation=True).to(device)
+        representations = model(bert_tokens['input_ids'], output_attentions=True, output_hidden_states=True,
                                 return_dict=True)
 
         # getting the stanza to RoBERTa token map
