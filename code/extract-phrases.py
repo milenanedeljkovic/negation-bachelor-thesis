@@ -9,6 +9,7 @@ i = 0
 j = 0
 with open("phrases-with-negation.txt", "a") as file:
     for page in dataset['train']:
+        print(j)
         phrases = sent_tokenize(page['text'])
         for phrase in phrases:
             j += 1
