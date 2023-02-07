@@ -1,5 +1,6 @@
 import conllu
 from typing import List
+import tensorflow
 
 
 def txt_to_conll(text: str, nlp):
@@ -20,13 +21,13 @@ def txt_to_conll(text: str, nlp):
     return doc._.conll_str
 
 
-def stanza_to_bert_tokens(sentence: conllu.models.TokenList, bert_tokenization, tokenizer):
+def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, tokenizer):
     """
     The function finds the ranges of tokens in tokenizer's tokenization that correspond to stanza's tokenization
 
     Input:
-    - sentence: the sentence parsed using stanza (will be of the form: TokenList<I, am, home, metadata={sent_id: "1", text: "I am home"}>)
-    - bert_tokenization: the output of tokenizer(original-sentence-string)['input_ids']
+    - phrase: the phrase parsed using stanza (will be of the form: TokenList<I, am, home, metadata={sent_id: "1", text: "I am home"}>)
+    - bert_tokenization: the output of tokenizer(original-phrase-string)['input_ids']
     - tokenizer: the tokenizer that we will use for getting context tensors
     Output:
     - mapping: the map between stanza tok
@@ -41,12 +42,12 @@ def stanza_to_bert_tokens(sentence: conllu.models.TokenList, bert_tokenization, 
     j = 0  # to walk through the RoBERTa token character by character.
     # This will help if words are weirdly cut and glued together
 
-    for token in sentence:  # this will loop through all stanza tokens
+    for token in phrase:  # this will loop through all stanza tokens
         token = token['form']
         start = i
         while len(token) > 0:
 
-            if bert_tokens[i][j] == "Ġ":  # this signifies the start of a word in RoBERTa in the pre-tokenized sentence
+            if bert_tokens[i][j] == "Ġ":  # this signifies the start of a word in RoBERTa in the pre-tokenized phrase
                 j += 1
 
             if len(token) == len(bert_tokens[i][j:]):  # RoBERTa token corresponds exactly to the stanza token
@@ -71,7 +72,7 @@ def stanza_to_bert_tokens(sentence: conllu.models.TokenList, bert_tokenization, 
 def get_contextual_embeddings(path: str, tokenizer, model, device):
     """
     Input:
-    - path: the location of the .conll file containing dependency trees for each sentence of the text we are analysing
+    - path: the location of the .conll file containing dependency trees for each phrase of the text we are analysing
     - tokenizer, model: the tokenizer and the model we will use for contextual representation
     - device: indicates whether we are on GPU or on CPU
 
@@ -81,47 +82,70 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
     # we find negation cues by depth-first search through the tree
     # jump below the function definition
-    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int):
+    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int, in_clause: bool) -> dict:
         """Input:
         - root: the (sub)tree in which we are looking for negation
         - current_verb: if we encounter negation, this is the lemma of the verb that is negated.
                         if another verb is encountered, the function is recursively called with the new current_verb
         - current_index: same as above
         Passing both current_verb and current_index to omit the search for the index's lemma in the tree.
-        We need the index to be able to localize the tokens of the verb in RoBERTa tokenization and the lemma to be able to fill in verb_embeddings"""
-        nonlocal representations  # will be initialized for each sentence; the RoBERTa encoding
-        nonlocal negation_found  # will be initialized for each sentence; dictionary that tells us
+        We need the index to be able to localize the tokens of the verb in RoBERTa tokenization and the lemma to be able
+        to fill in verb_embeddings
+        - in_clause: True if we are in a dependent clause"""
+        nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
+        nonlocal negation_found  # will be initialized for each phrase; dictionary that tells us
         # whether negation was found for each verb lemma (for each auxilary)
-        nonlocal sentence  # this is the linearized tree (sentence in the first for loop -
-        # we have "for sentence in dependency_trees")
+        nonlocal phrase  # this is the linearized tree (phrase in the first for loop -
+        # we have "for phrase in dependency_trees")
         # only needed for localizing "no more"
+
+        # the three following variables are initialized in script.py
+        global num_complex_phrases
+        global num_negations
+        global num_negations_in_dependent_clauses
+
+        nonlocal clause_found  # a bool, signals whether the phrase was already counted in num_complex_phrases; defined
+        # in the loop within get_verb_embeddings
 
         if root.token['upos'] == "VERB":  # the function is called for all children but current_verb
             # and current_index change
             negation_found[root.token['id']] = [0, 0]  # a verb is found but the negation not yet -
-            # the auxilaries also haven't because we are in a tree structure
+            # the auxiliaries also haven't because we are in a tree structure
             for child in root.children:
-                depth_search(child, root.token['lemma'], root.token['id'])
+                if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
+                    if not clause_found:
+                        num_complex_phrases += 1
+                        clause_found = True
+                    depth_search(child, root.token['lemma'], root.token['id'], True)
+                else:
+                    depth_search(child, root.token['lemma'], root.token['id'], False)
 
         else:  # we haven't found negation and root is not a verb
             # we iterate through the root's children, not changing the other parameters
-            if root.token['upos'] == "AUX":  # we have found an auxiliary of the current root
-                if current_index in negation_found:  # it is possible for the auxiliary to be tied
-                    # to another auxiliary (like "won't" to "can")
-                    # in the sentence "I can but won't do this"
+            if root.token['upos'] == "AUX":  # we have found an auxiliary
+                if current_index in negation_found:  # we check if it is really the auxiliary of current_verb
                     negation_found[current_index][0] += 1
 
             # we check whether we have found negation:
             elif root.token['lemma'] == 'not' or root.token['lemma'] == 'never' or (
-                    root.token['lemma'] == 'more' and root.token['id'] > 1 and sentence[root.token['id'] - 2]['lemma'] == 'no'):
+                    root.token['lemma'] == 'more' and root.token['id'] > 1 and phrase[root.token['id'] - 2]['lemma'] == 'no'):
                 if current_index in negation_found:  # it is possible for the head to be something other than a verb,
-                    # for example in the sentence "Martin will have no more apple sauce"
+                    # for example in the phrase "Martin will have no more apple sauce"
                     # where the head of negation is "sauce" - in this case we will ignore it
                     negation_found[current_index][1] += 1  # a negation found for the current verb
+                    num_negations += 1
+                    if in_clause:
+                        num_negations_in_dependent_clauses += 1
 
             # iterate though all the children (there is probably no children here)
             for child in root.children:
-                depth_search(child, current_verb, current_index)
+                if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
+                    if not clause_found:
+                        num_complex_phrases += 1
+                        clause_found = True
+                    depth_search(child, current_verb, current_index, True)
+                else:
+                    depth_search(child, current_verb, current_index, False)
 
     # reading the file from path
     file = open(path)
@@ -132,42 +156,58 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
     verb_embeddings = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-    for sentence in dependency_trees:
+    global num_phrases  # initialized in script.py
 
-        sentence_tree = sentence.to_tree()
+    for phrase in dependency_trees:
+        num_phrases += 1
 
-        # tokenizing and encoding of the original sentence using RoBERTa
-        bert_tokens = tokenizer(sentence_tree.metadata['text'], return_tensors='pt',
+        phrase_tree = phrase.to_tree()
+
+        # tokenizing and encoding of the original phrase using RoBERTa
+        bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
                                 max_length=512, padding=True, truncation=True).to(device)
         representations = model(bert_tokens['input_ids'], output_attentions=True, output_hidden_states=True,
                                 return_dict=True)
 
         # getting the stanza to RoBERTa token map
-        token_mapping = stanza_to_bert_tokens(sentence, tokenizer(sentence_tree.metadata['text'])['input_ids'],
+        token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
                                               tokenizer)
 
         negation_found = {}  # Dict[int, [int, int]], maps the index of a verb to  a tuple (num_aux, num_negations) -
         # the number of auxiliaries and the number of negations of the verb)
 
+        clause_found = False
         # depth first search from the tree: see function above
-        depth_search(sentence_tree, sentence_tree.token['lemma'], sentence_tree.token['id'])
+        depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
 
         # current_verbs are now filled
         for index in negation_found:
-            lemma = sentence[index - 1]['lemma']
-            if lemma not in verb_embeddings:
-                verb_embeddings[lemma] = [[], []]
+            lemma = phrase[index - 1]['lemma']
 
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
-
+            verb_to_add = representations.last_hidden_state[0, start:end, :]
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
-                verb_embeddings[lemma][1] += representations.last_hindexden_state[0, start:end, :]
+                if lemma not in verb_embeddings:
+                    verb_embeddings[lemma][1] = verb_to_add
+                else:
+                    verb_embeddings[lemma][1] = [tensorflow.math.add(verb_embeddings[lemma][1][i], verb_to_add[i])
+                                                 for i in range(len(verb_to_add))]
             elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
                 # bigger than or equal to the number of auxiliaries
-                verb_embeddings[lemma][0] += representations.last_hidden_state[0, start:end, :]
+                if lemma not in verb_embeddings:
+                    verb_embeddings[lemma][0] = verb_to_add
+                else:
+                    verb_embeddings[lemma][0] = [tensorflow.math.add(verb_embeddings[lemma][0][i], verb_to_add[i])
+                                                 for i in range(len(verb_to_add))]
             else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
-                verb_embeddings[lemma][0] += representations.last_hidden_state[0, start:end, :]
-                verb_embeddings[lemma][1] += representations.last_hidden_state[0, start:end, :]
+                if lemma not in verb_embeddings:
+                    verb_embeddings[lemma][0] = verb_to_add
+                    verb_embeddings[lemma][1] = verb_to_add
+                else:
+                    verb_embeddings[lemma][0] = [tensorflow.math.add(verb_embeddings[lemma][0][i], verb_to_add[i])
+                                                 for i in range(len(verb_to_add))]
+                    verb_embeddings[lemma][1] = [tensorflow.math.add(verb_embeddings[lemma][1][i], verb_to_add[i])
+                                                 for i in range(len(verb_to_add))]
 
     # we have exited the first loop, everything we need is in verb_embeddings
     return verb_embeddings
@@ -176,7 +216,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 def wiki_negated_clause_stats(path: str):
     """
     Input:
-    - path: the location of the .conll file containing dependency trees for each sentence of the text we are analysing
+    - path: the location of the .conll file containing dependency trees for each phrase of the text we are analysing
 
     Output:
     - (number_of_phrases_with_negation, number_of_simple_phrases_with_negation)
@@ -192,10 +232,10 @@ def wiki_negated_clause_stats(path: str):
     phrases_with_negation = 0
     negations_in_dependent_clauses = 0
 
-    for sentence in dependency_trees:
-        for token in sentence:
-            if token['lemma'] == 'not' or token['lemma'] == 'never' or (token['lemma'] == 'more' and token['id'] > 1 and sentence[token['id'] - 2]['lemma'] == 'no'):
-                token_head = sentence[token['head'] - 1]
+    for phrase in dependency_trees:
+        for token in phrase:
+            if token['lemma'] == 'not' or token['lemma'] == 'never' or (token['lemma'] == 'more' and token['id'] > 1 and phrase[token['id'] - 2]['lemma'] == 'no'):
+                token_head = phrase[token['head'] - 1]
                 if token_head['upos'] == "VERB":
                     phrases_with_negation += 1
                     if token_head['head'] != 0:  # the root is negated

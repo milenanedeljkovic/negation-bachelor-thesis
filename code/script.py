@@ -6,6 +6,7 @@ import spacy_stanza
 import torch
 from transformers import AutoModel, AutoTokenizer
 from function_definitions import txt_to_conll, get_contextual_embeddings
+import json
 
 dataset = sys.argv[1]  # the dataset which we will analyse
 
@@ -19,7 +20,9 @@ model.to(device)
 
 verb_embeddings = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-for page in dataset[:1]:
+num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses = 0, 0, 0, 0
+
+for page in dataset:
     page_text = page['text']
     with open("current_page.conll", "w") as file:
         file.write(txt_to_conll(page_text, nlp))
