@@ -10,6 +10,7 @@ dataset = sys.argv[1]
 
 with open("negation-phrases", "a") as file:
     for page in dataset:
+        print(page)
         phrases = sent_tokenize(page.lower())
         for phrase in phrases:
             if any([s in phrase for s in ["n't", " not ", " never ", " not.", " not!", " not?", " never.", " never?",
