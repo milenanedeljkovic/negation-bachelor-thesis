@@ -9,7 +9,7 @@ with open("negation-phrases", "a") as file:
     for page in dataset['train']:
         phrases = sent_tokenize(page['text'].lower())
         for phrase in phrases:
-            if any([s in phrase for s in ["n't", " not ", " never ", " not.", " not!", " not?", " never.", " never?",
-                                          " never!", "cannot", "no more"]]):
+            if any([s in phrase for s in ["not", "never", "no", "cannot", "n't"]]):
                 file.write(phrase)
+
 
