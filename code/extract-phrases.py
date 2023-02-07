@@ -1,15 +1,12 @@
-import os
-import sys
 import nltk
 nltk.download()
 from nltk import sent_tokenize
+from datasets import load_dataset
 
-
-# this is dataset['train'] from dataset = load_dataset(...)
-dataset = sys.argv[1]
+dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
 with open("negation-phrases", "a") as file:
-    for page in dataset:
+    for page in dataset['train']:
         phrases = sent_tokenize(page['text'].lower())
         for phrase in phrases:
             if any([s in phrase for s in ["n't", " not ", " never ", " not.", " not!", " not?", " never.", " never?",
