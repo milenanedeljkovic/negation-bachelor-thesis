@@ -6,8 +6,6 @@ from datasets import load_dataset
 import sys
 from datetime import datetime
 import torch
-@torch.no_grad()
-
 def txt_to_conll(text: str, nlp):
     """Input:
     - text: the string we want to parse
@@ -39,7 +37,8 @@ with open("last_page_processed.txt", "r") as file:
 if last_to_parse <= last_parsed:
     raise ValueError(f"Already parsed up to index {last_parsed}.")
 
-nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
+with torch.no_grad():
+    nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 
 now = datetime.now()
 
