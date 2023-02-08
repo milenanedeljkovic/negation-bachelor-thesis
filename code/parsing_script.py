@@ -5,6 +5,8 @@ import spacy_stanza
 from datasets import load_dataset
 import sys
 from datetime import datetime
+import torch
+@torch.no_grad()
 
 def txt_to_conll(text: str, nlp):
     """Input:
