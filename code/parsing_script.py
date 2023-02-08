@@ -27,8 +27,8 @@ last_to_parse = int(sys.argv[1])
 
 dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
-if last_to_parse >= len(dataset):
-    raise ValueError(f"Cannot parse up to index {last_to_parse}, the last index of the dataset is {len(dataset) - 1}.")
+if last_to_parse >= len(dataset['train']):
+    raise ValueError(f"Cannot parse up to index {last_to_parse}, the last index of the dataset is {len(dataset['train']) - 1}.")
 
 with open("last_page_processed.txt", "r") as file:
     # the first line in this file contains the index of the last processed page in the corpus
@@ -46,7 +46,7 @@ print("Parsing Start Time =", current_time)
 
 try:
     for i in range(last_parsed + 1, last_to_parse + 1):
-        page_text = dataset[i]['text']
+        page_text = dataset['train'][i]['text']
         with open("dependency_trees.conll", "a") as file:
             file.write(txt_to_conll(page_text, nlp))
 except:
