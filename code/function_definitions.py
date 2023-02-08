@@ -170,29 +170,27 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             lemma = phrase[index - 1]['lemma']
 
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
-            verb_to_add = representations.last_hidden_state[0, start:end, :]
+            verb_to_add = representations.last_hidden_state[0, start, :]
+            for i in range(start + 1, end):
+                verb_to_add += representations.last_hidden_state[0, i, :]
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embeddings:
-                    verb_embeddings[lemma][1] = verb_to_add
+                    verb_embeddings[lemma][1] = [verb_to_add]
                 else:
-                    verb_embeddings[lemma][1] = [tensorflow.math.add(verb_embeddings[lemma][1][i], verb_to_add[i])
-                                                 for i in range(len(verb_to_add))]
+                    verb_embeddings[lemma][1].append(verb_to_add)
             elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
                 # bigger than or equal to the number of auxiliaries
                 if lemma not in verb_embeddings:
-                    verb_embeddings[lemma][0] = verb_to_add
+                    verb_embeddings[lemma][0] = [verb_to_add]
                 else:
-                    verb_embeddings[lemma][0] = [tensorflow.math.add(verb_embeddings[lemma][0][i], verb_to_add[i])
-                                                 for i in range(len(verb_to_add))]
+                    verb_embeddings[lemma][0].append(verb_to_add)
             else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
                 if lemma not in verb_embeddings:
                     verb_embeddings[lemma][0] = verb_to_add
                     verb_embeddings[lemma][1] = verb_to_add
                 else:
-                    verb_embeddings[lemma][0] = [tensorflow.math.add(verb_embeddings[lemma][0][i], verb_to_add[i])
-                                                 for i in range(len(verb_to_add))]
-                    verb_embeddings[lemma][1] = [tensorflow.math.add(verb_embeddings[lemma][1][i], verb_to_add[i])
-                                                 for i in range(len(verb_to_add))]
+                    verb_embeddings[lemma][0].append(verb_to_add)
+                    verb_embeddings[lemma][1].append(verb_to_add)
 
     # we have exited the first loop, everything we need is in verb_embeddings
     return verb_embeddings

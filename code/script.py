@@ -9,8 +9,6 @@ from function_definitions import txt_to_conll, get_contextual_embeddings
 import json
 dataset = sys.argv[1]  # the dataset which we will analyse
 
-
-
 tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 model = AutoModel.from_pretrained("roberta-base")
 
@@ -33,4 +31,7 @@ for page in dataset:
         if verb not in verb_embeddings:
             verb_embeddings[verb] = current_embeddings[verb]
         else:
-            verb_embeddings[verb] += current_embeddings[verb]
+            verb_embeddings[verb] += current_embeddings[verb]  # this is addition of lists!
+
+with open("representations_map.json", "w") as file:
+    file.write()
