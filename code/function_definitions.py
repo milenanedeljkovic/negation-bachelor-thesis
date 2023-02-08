@@ -3,22 +3,7 @@ from typing import List
 import tensorflow
 
 
-def txt_to_conll(text: str, nlp):
-    """Input:
-    - text: the string we want to parse
-    - nlp: stanza parser (initalized in the cell above)
 
-    Output:
-    - the dependency trees for each setnence in text,
-      concatenated in a .conll format"""
-
-    # text clean-up: we need to eliminate all \n and \t and not have more than one ' ' in a row anywhere
-    # we do this by using string.split() method which splits by " ", \n and \t and concatenate all the pieces
-    # excess spaces result in a wrong .conll that is undreadable afterwards
-    text = " ".join(text.split())
-
-    doc = nlp(text)
-    return doc._.conll_str
 
 
 def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, tokenizer):

@@ -4,13 +4,24 @@ import spacy_conll
 import spacy_stanza
 from datasets import load_dataset
 import sys
-from function_definitions import txt_to_conll
 from datetime import datetime
 
-now = datetime.now()
+def txt_to_conll(text: str, nlp):
+    """Input:
+    - text: the string we want to parse
+    - nlp: stanza parser (initalized in the cell above)
 
-current_time = now.strftime("%H:%M:%S")
-print("Start Time =", current_time)
+    Output:
+    - the dependency trees for each setnence in text,
+      concatenated in a .conll format"""
+
+    # text clean-up: we need to eliminate all \n and \t and not have more than one ' ' in a row anywhere
+    # we do this by using string.split() method which splits by " ", \n and \t and concatenate all the pieces
+    # excess spaces result in a wrong .conll that is undreadable afterwards
+    text = " ".join(text.split())
+
+    doc = nlp(text)
+    return doc._.conll_str
 
 last_to_parse = sys.argv[1]
 
@@ -28,6 +39,11 @@ if last_to_parse <= last_parsed:
 
 nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("Parsing Start Time =", current_time)
+
 try:
     for i in range(last_parsed + 1, last_to_parse + 1):
         page_text = dataset[i]['text']
@@ -36,11 +52,13 @@ try:
 except:
     raise RuntimeError("Parsing failed.")
 
-with open("last_page_processed.txt", "w") as file:
-    file.write(last_to_parse)
 
 now = datetime.now()
 
 current_time = now.strftime("%H:%M:%S")
-print("End Time =", current_time)
+print("Parsing End Time =", current_time)
 print(f"Number of pages processed: {last_to_parse - last_parsed}")
+
+with open("last_page_processed.txt", "w") as file:
+    file.write(last_to_parse)
+
