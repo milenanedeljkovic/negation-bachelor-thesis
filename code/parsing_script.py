@@ -23,7 +23,7 @@ def txt_to_conll(text: str, nlp):
     doc = nlp(text)
     return doc._.conll_str
 
-last_to_parse = sys.argv[1]
+last_to_parse = int(sys.argv[1])
 
 dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
