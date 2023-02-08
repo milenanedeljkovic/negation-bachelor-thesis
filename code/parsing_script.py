@@ -5,7 +5,12 @@ import spacy_stanza
 from datasets import load_dataset
 import sys
 from function_definitions import txt_to_conll
+from datetime import datetime
 
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("Start Time =", current_time)
 
 last_to_parse = sys.argv[1]
 
@@ -33,3 +38,9 @@ except:
 
 with open("last_page_processed.txt", "w") as file:
     file.write(last_to_parse)
+
+now = datetime.now()
+
+current_time = now.strftime("%H:%M:%S")
+print("End Time =", current_time)
+print(f"Number of pages processed: {last_to_parse - last_parsed}")
