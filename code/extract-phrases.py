@@ -13,7 +13,7 @@ with open("phrases-with-negation.txt", "a") as file:
         phrases = sent_tokenize(page['text'])
         for phrase in phrases:
             j += 1
-            if any([s in phrase.lower() for s in ["not", "never", "no", "cannot", "n't", "no more"]]):
+            if any([s in phrase.lower() for s in ["not", "never", "cannot", "n't", "no more"]]):
                 i += 1
                 file.write(f"{phrase}\n")
 
