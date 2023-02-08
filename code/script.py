@@ -7,11 +7,10 @@ import torch
 from transformers import AutoModel, AutoTokenizer
 from function_definitions import txt_to_conll, get_contextual_embeddings
 import json
-
 dataset = sys.argv[1]  # the dataset which we will analyse
 
 
-nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
+
 tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 model = AutoModel.from_pretrained("roberta-base")
 
