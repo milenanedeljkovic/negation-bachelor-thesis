@@ -66,5 +66,5 @@ with torch.no_grad():
     print(f"Number of pages processed: {last_to_parse - last_parsed}")
 
     with open("last_page_processed.txt", "w") as file:
-        file.write(last_to_parse)
+        file.write(str(last_to_parse))
 
