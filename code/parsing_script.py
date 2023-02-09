@@ -60,7 +60,6 @@ with torch.no_grad():
         raise RuntimeError("Parsing failed.")
 
     now = datetime.now()
-
     current_time = now.strftime("%H:%M:%S")
     print("Parsing End Time =", current_time)
     print(f"Number of pages processed: {last_to_parse - last_parsed}")
