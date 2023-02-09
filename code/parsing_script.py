@@ -27,22 +27,20 @@ def txt_to_conll(text: str, nlp):
     return doc._.conll_str
 
 with torch.no_grad():
-    if len(sys.argv) != 3:
-        raise AttributeError(f"Script takes two arguments: the last index to parse and the output file.")
-    last_to_parse = int(sys.argv[1])
-    writefile = sys.argv[2]
+    if len(sys.argv) != 4:
+        raise AttributeError(f"Script takes 3 arguments: the first and last index to parse and the output file.")
+    first_to_parse = int(sys.argv[1])
+    last_to_parse = int(sys.argv[2])
+    writefile = sys.argv[3]
 
     dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
-    if last_to_parse >= len(dataset['train']):
-        raise ValueError(f"Cannot parse up to index {last_to_parse}, the last index of the dataset is {len(dataset['train']) - 1}.")
+    if last_to_parse > len(dataset['train']):
+        raise ValueError(f"Cannot parse up to index {last_to_parse}, the length of the dataset is {len(dataset['train'])}.")
 
     with open("last_page_processed.txt", "r") as file:
         # the first line in this file contains the index of the last processed page in the corpus
         last_parsed = int(file.readline())
-
-    if last_to_parse <= last_parsed:
-        raise ValueError(f"Already parsed up to index {last_parsed}.")
 
     nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 
@@ -52,7 +50,7 @@ with torch.no_grad():
     print("Parsing Start Time =", current_time)
 
     try:
-        for i in range(last_parsed + 1, last_to_parse + 1):
+        for i in range(first_to_parse, last_to_parse):
             page_text = dataset['train'][i]['text']
             with open(writefile, "a") as file:
                 file.write(txt_to_conll(page_text, nlp))
@@ -63,7 +61,4 @@ with torch.no_grad():
     current_time = now.strftime("%H:%M:%S")
     print("Parsing End Time =", current_time)
     print(f"Number of pages processed: {last_to_parse - last_parsed}")
-
-    with open("last_page_processed.txt", "w") as file:
-        file.write(str(last_to_parse))
 
