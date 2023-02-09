@@ -27,7 +27,10 @@ def txt_to_conll(text: str, nlp):
     return doc._.conll_str
 
 with torch.no_grad():
+    if len(sys.argv) != 3:
+        raise AttributeError(f"Script takes two arguments: the last index to parse and the output file.")
     last_to_parse = int(sys.argv[1])
+    writefile = sys.argv[2]
 
     dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
@@ -51,11 +54,10 @@ with torch.no_grad():
     try:
         for i in range(last_parsed + 1, last_to_parse + 1):
             page_text = dataset['train'][i]['text']
-            with open("dependency_trees.conll", "a") as file:
+            with open(writefile, "a") as file:
                 file.write(txt_to_conll(page_text, nlp))
     except:
         raise RuntimeError("Parsing failed.")
-
 
     now = datetime.now()
 

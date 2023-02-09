@@ -186,8 +186,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                     verb_embeddings[lemma][0].append(verb_to_add)
             else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
                 if lemma not in verb_embeddings:
-                    verb_embeddings[lemma][0] = verb_to_add
-                    verb_embeddings[lemma][1] = verb_to_add
+                    verb_embeddings[lemma][0] = [verb_to_add]
+                    verb_embeddings[lemma][1] = [verb_to_add]
                 else:
                     verb_embeddings[lemma][0].append(verb_to_add)
                     verb_embeddings[lemma][1].append(verb_to_add)
