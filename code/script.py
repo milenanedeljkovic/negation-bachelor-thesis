@@ -167,7 +167,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-    num_phrases, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses  = 0, 0, 0, 0
+    num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses  = 0, 0, 0, 0
 
     for phrase in dep_trees:
         num_phrases += 1
