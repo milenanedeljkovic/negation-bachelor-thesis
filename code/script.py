@@ -9,7 +9,7 @@ from function_definitions import txt_to_conll, get_contextual_embeddings
 import torch
 
 
-dataset = sys.argv[1]  # the file with parsed phrases
+dependency_trees = sys.argv[1]  # the file with parsed phrases
 
 tokenizer = AutoTokenizer.from_pretrained("roberta-base")
 model = AutoModel.from_pretrained("roberta-base")
@@ -24,7 +24,7 @@ else:
 
 num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses = 0, 0, 0, 0
 
-embeddings = get_contextual_embeddings("current_page.conll", tokenizer, model, device)
+embeddings = get_contextual_embeddings(dependency_trees, tokenizer, model, device)
 
 for verb in embeddings:
     if verb not in verb_embeddings:
@@ -33,4 +33,11 @@ for verb in embeddings:
         verb_embeddings[verb] += embeddings[verb]  # this is addition of lists!
 
 torch.save(verb_embeddings, "verb_embeddings")
+
+with open(f"{dependency_trees[:-5]}-stats.txt", "a") as file:
+    file.write(f"Number of phrases: {num_phrases}\n")
+    file.write(f"Number of complex phases: {num_complex_phrases} ({num_complex_phrases / num_phrases})\n")
+    file.write(f"Number of negated phrases: {num_negations} ({num_negations / num_phrases})\n")
+    file.write(f"Number of negations in dependent clauses: {num_negations_in_dependent_clauses} "
+               f"({num_negations_in_dependent_clauses / num_negations})")
 
