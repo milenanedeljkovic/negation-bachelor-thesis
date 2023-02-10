@@ -167,7 +167,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-    nonlocal num_phrases  # initialized in script.py
+    num_phrases, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses  = 0, 0, 0, 0
 
     for phrase in dep_trees:
         num_phrases += 1
@@ -219,7 +219,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                     verb_embs[lemma][1].append(verb_to_add)
 
     # we have exited the first loop, everything we need is in verb_embs
-    return verb_embs
+    return verb_embs, num_phrases, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses
 
 
 dependency_trees = sys.argv[1]  # the file with parsed phrases
@@ -235,10 +235,9 @@ if os.path.isfile("verb_embeddings"):
 else:
     verb_embeddings = {}
 
-num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses = 0, 0, 0, 0
 
-
-embeddings = get_contextual_embeddings(dependency_trees, tokenizer, model, device)
+embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses =\
+    get_contextual_embeddings(dependency_trees, tokenizer, model, device), 0, 0, 0, 0
 
 for verb in embeddings:
     if verb not in verb_embeddings:
