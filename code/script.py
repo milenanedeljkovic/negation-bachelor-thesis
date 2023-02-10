@@ -199,6 +199,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             verb_to_add = representations.last_hidden_state[0, start, :]
             for i in range(start + 1, end):
                 verb_to_add += representations.last_hidden_state[0, i, :]
+            verb_to_add /= end - start
+
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
                     verb_embs[lemma] = [[], [verb_to_add]]
