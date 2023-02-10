@@ -201,19 +201,18 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
-                    verb_embs[lemma][1] = [verb_to_add]
+                    verb_embs[lemma] = [[], [verb_to_add]]
                 else:
                     verb_embs[lemma][1].append(verb_to_add)
             elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
                 # bigger than or equal to the number of auxiliaries
                 if lemma not in verb_embs:
-                    verb_embs[lemma][0] = [verb_to_add]
+                    verb_embs[lemma][0] = [[verb_to_add], []]
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
             else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
                 if lemma not in verb_embs:
-                    verb_embs[lemma][0] = [verb_to_add]
-                    verb_embs[lemma][1] = [verb_to_add]
+                    verb_embs[lemma][0] = [[verb_to_add], [verb_to_add]]
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
