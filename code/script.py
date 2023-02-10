@@ -80,12 +80,11 @@ def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, to
     return token_map
 
 
-def get_contextual_embeddings(path: str, tokenizer, model, device):
+def get_contextual_embeddings(path: str, tokenizer, model):
     """
     Input:
     - path: the location of the .conll file containing dependency trees for each phrase of the text we are analysing
     - tokenizer, model: the tokenizer and the model we will use for contextual representation
-    - device: indicates whether we are on GPU or on CPU
 
     Output:
     - a dictionary mapping each verb lemma to its v- and v+ representations (look into the code for a more detailed explanation)
@@ -178,7 +177,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True).to(device)
+                                max_length=512, padding=True, truncation=True)
         representations = model(bert_tokens['input_ids'], output_attentions=True, output_hidden_states=True,
                                 return_dict=True)
 
@@ -239,9 +238,8 @@ with torch.no_grad():
     else:
         verb_embeddings = {}
 
-
     embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses =\
-        get_contextual_embeddings(dependency_trees, tokenizer, model, device), 0, 0, 0, 0
+        get_contextual_embeddings(dependency_trees, tokenizer, model), 0, 0, 0, 0
 
     for verb in embeddings:
         if verb not in verb_embeddings:
