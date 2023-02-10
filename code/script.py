@@ -158,7 +158,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                             clause_found = True
                         depth_search(child, current_verb, current_index, True)
                     else:
-                        depth_search(child, current_verb, current_index, False)`
+                        depth_search(child, current_verb, current_index, False)
 
     # reading the file from path
     f = open(path)
