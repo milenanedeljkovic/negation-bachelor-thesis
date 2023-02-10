@@ -38,10 +38,6 @@ with torch.no_grad():
     if last_to_parse > len(dataset['train']):
         raise ValueError(f"Cannot parse up to index {last_to_parse}, the length of the dataset is {len(dataset['train'])}.")
 
-    with open("last_page_processed.txt", "r") as file:
-        # the first line in this file contains the index of the last processed page in the corpus
-        last_parsed = int(file.readline())
-
     nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 
     now = datetime.now()
@@ -60,5 +56,5 @@ with torch.no_grad():
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Parsing End Time =", current_time)
-    print(f"Number of pages processed: {last_to_parse - last_parsed}")
+    print(f"Number of pages processed: {last_to_parse - first_to_parse}")
 
