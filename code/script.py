@@ -5,7 +5,7 @@ import spacy_conll
 import spacy_stanza
 import torch
 from transformers import AutoModel, AutoTokenizer
-from function_definitions import txt_to_conll, get_contextual_embeddings
+from function_definitions import get_contextual_embeddings
 import torch
 
 def txt_to_conll(text: str, nlp):
