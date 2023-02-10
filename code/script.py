@@ -5,7 +5,6 @@ import spacy_conll
 import spacy_stanza
 import torch
 from transformers import AutoModel, AutoTokenizer
-from function_definitions import get_contextual_embeddings
 import torch
 
 def txt_to_conll(text: str, nlp):
@@ -25,6 +24,7 @@ def txt_to_conll(text: str, nlp):
     doc = nlp(text)
     return doc._.conll_str
 
+
 dependency_trees = sys.argv[1]  # the file with parsed phrases
 
 tokenizer = AutoTokenizer.from_pretrained("roberta-base")
@@ -39,6 +39,8 @@ else:
     verb_embeddings = {}
 
 num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses = 0, 0, 0, 0
+
+from function_definitions import get_contextual_embeddings
 
 embeddings = get_contextual_embeddings(dependency_trees, tokenizer, model, device)
 
