@@ -122,14 +122,15 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             # and current_index change
             negation_found[root.token['id']] = [0, 0]  # a verb is found but the negation not yet -
             # the auxiliaries also haven't because we are in a tree structure
-            for child in root.children:
-                if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
-                    if not clause_found:
-                        num_complex_phrases += 1
-                        clause_found = True
-                    depth_search(child, root.token['lemma'], root.token['id'], True)
-                else:
-                    depth_search(child, root.token['lemma'], root.token['id'], False)
+            if len(root.children) > 0:
+                for child in root.children:
+                    if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
+                        if not clause_found:
+                            num_complex_phrases += 1
+                            clause_found = True
+                        depth_search(child, root.token['lemma'], root.token['id'], True)
+                    else:
+                        depth_search(child, root.token['lemma'], root.token['id'], False)
 
         else:  # we haven't found negation and root is not a verb
             # we iterate through the root's children, not changing the other parameters
@@ -149,14 +150,15 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                         num_negations_in_dependent_clauses += 1
 
             # iterate though all the children (there is probably no children here)
-            for child in root.children:
-                if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
-                    if not clause_found:
-                        num_complex_phrases += 1
-                        clause_found = True
-                    depth_search(child, current_verb, current_index, True)
-                else:
-                    depth_search(child, current_verb, current_index, False)
+            if len(root.children) > 0:
+                for child in root.children:
+                    if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
+                        if not clause_found:
+                            num_complex_phrases += 1
+                            clause_found = True
+                        depth_search(child, current_verb, current_index, True)
+                    else:
+                        depth_search(child, current_verb, current_index, False)`
 
     # reading the file from path
     f = open(path)
@@ -248,7 +250,7 @@ for verb in embeddings:
 
 torch.save(verb_embeddings, "verb_embeddings")
 
-with open(f"{dependency_trees[:-5]}-stats.txt", "a") as file:
+with open(f"{dependency_trees[:-5]}_stats.txt", "a") as file:
     file.write(f"Number of phrases: {num_phrases}\n")
     file.write(f"Number of complex phases: {num_complex_phrases} ({num_complex_phrases / num_phrases})\n")
     file.write(f"Number of negated phrases: {num_negations} ({num_negations / num_phrases})\n")
