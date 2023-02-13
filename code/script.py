@@ -137,7 +137,8 @@ def get_contextual_embeddings(path: str, tokenizer, model):
 
             # we check whether we have found negation:
             elif root.token['lemma'] == 'not' or root.token['lemma'] == 'never' or (
-                    root.token['lemma'] == 'more' and root.token['id'] > 1 and phrase[root.token['id'] - 2]['lemma'] == 'no'):
+                    root.token['lemma'] == 'more' and root.token['id'] > 1 and phrase[root.token['id'] - 2]['lemma'] == 'no') or (
+                    root.token['lemma'] == 'longer' and root.token['id'] > 1 and phrase[root.token['id'] - 2]['lemma'] == 'no'):
                 if current_index in negation_found:  # it is possible for the head to be something other than a verb,
                     # for example in the phrase "Martin will have no more apple sauce"
                     # where the head of negation is "sauce" - in this case we will ignore it
@@ -169,7 +170,6 @@ def get_contextual_embeddings(path: str, tokenizer, model):
     num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl = 0, 0, 0, 0
 
     for phrase in dep_trees:
-        print(phrase)
         num_ph += 1
 
         phrase_tree = phrase.to_tree()
