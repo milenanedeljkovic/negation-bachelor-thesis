@@ -220,7 +220,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
                     verb_embs[lemma][1].append(verb_to_add)
 
     # we have exited the first loop, everything we need is in verb_embs
-    return verb_embs, num_phrases, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses
+    return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl
 
 
 with torch.no_grad():
@@ -238,7 +238,7 @@ with torch.no_grad():
         verb_embeddings = {}
 
     embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses =\
-        get_contextual_embeddings(dependency_trees, tokenizer, model), 0, 0, 0, 0
+        get_contextual_embeddings(dependency_trees, tokenizer, model)
 
     for verb in embeddings:
         if verb not in verb_embeddings:
