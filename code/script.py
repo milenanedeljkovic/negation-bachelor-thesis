@@ -7,6 +7,7 @@ import torch
 from transformers import AutoModel, AutoTokenizer
 import torch
 
+
 def txt_to_conll(text: str, nlp):
     """Input:
     - text: the string we want to parse
@@ -27,9 +28,6 @@ def txt_to_conll(text: str, nlp):
 import conllu
 from typing import List
 import tensorflow
-
-
-
 
 
 def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, tokenizer):
@@ -171,6 +169,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
     num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses  = 0, 0, 0, 0
 
     for phrase in dep_trees:
+        print(phrase)
         num_phrases += 1
 
         phrase_tree = phrase.to_tree()
