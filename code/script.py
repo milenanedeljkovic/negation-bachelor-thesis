@@ -108,9 +108,9 @@ def get_contextual_embeddings(path: str, tokenizer, model):
         # only needed for localizing "no more"
 
         # the three following variables are initialized in script.py
-        nonlocal num_complex_phrases
-        nonlocal num_negations
-        nonlocal num_negations_in_dependent_clauses
+        nonlocal num_complex_ph
+        nonlocal num_neg
+        nonlocal num_negations_in_dependent_cl
 
         nonlocal clause_found  # a bool, signals whether the phrase was already counted in num_complex_phrases; defined
         # in the loop within get_verb_embeddings
@@ -123,7 +123,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
                 for child in root.children:
                     if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
                         if not clause_found:
-                            num_complex_phrases += 1
+                            num_complex_ph += 1
                             clause_found = True
                         depth_search(child, root.token['lemma'], root.token['id'], True)
                     else:
@@ -142,16 +142,16 @@ def get_contextual_embeddings(path: str, tokenizer, model):
                     # for example in the phrase "Martin will have no more apple sauce"
                     # where the head of negation is "sauce" - in this case we will ignore it
                     negation_found[current_index][1] += 1  # a negation found for the current verb
-                    num_negations += 1
+                    num_neg += 1
                     if in_clause:
-                        num_negations_in_dependent_clauses += 1
+                        num_negations_in_dependent_cl += 1
 
             # iterate though all the children (there is probably no children here)
             if len(root.children) > 0:
                 for child in root.children:
                     if root.token['deprel'].startswith(("ccomp", "xcomp", "csubj", "advcl", "acl", "list", "parataxis")):
                         if not clause_found:
-                            num_complex_phrases += 1
+                            num_complex_ph += 1
                             clause_found = True
                         depth_search(child, current_verb, current_index, True)
                     else:
@@ -166,11 +166,11 @@ def get_contextual_embeddings(path: str, tokenizer, model):
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-    num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses  = 0, 0, 0, 0
+    num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl = 0, 0, 0, 0
 
     for phrase in dep_trees:
         print(phrase)
-        num_phrases += 1
+        num_ph += 1
 
         phrase_tree = phrase.to_tree()
 
