@@ -197,12 +197,13 @@ def get_contextual_embeddings(path: str, tokenizer, model):
             lemma = phrase[index - 1]['lemma']
 
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
-            verb_to_add = representations.last_hidden_state[0, start, :]
 
             # because the encodings are truncated to 512!
             if start >= 512:
                 disc += 1
                 continue
+
+            verb_to_add = representations.last_hidden_state[0, start, :]
 
             for i in range(start + 1, end):
                 verb_to_add += representations.last_hidden_state[0, i, :]
