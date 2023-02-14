@@ -6,6 +6,7 @@ import spacy_stanza
 import torch
 from transformers import AutoModel, AutoTokenizer
 import torch
+from datetime import datetime
 
 
 def txt_to_conll(text: str, nlp):
@@ -243,8 +244,16 @@ with torch.no_grad():
     else:
         verb_embeddings = {}
 
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Embedding Start Time =", current_time)
+
     embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
         get_contextual_embeddings(dependency_trees, tokenizer, model)
+
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Embedding End Time =", current_time)
 
     for verb in embeddings:
         if verb not in verb_embeddings:
@@ -253,6 +262,10 @@ with torch.no_grad():
             verb_embeddings[verb] += embeddings[verb]  # this is addition of lists!
 
     torch.save(verb_embeddings, "verb_embeddings")
+
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Verbs saved =", current_time)
 
     with open(f"{dependency_trees[:-5]}_stats.txt", "a") as file:
         file.write(f"Number of phrases: {num_phrases}\n")
