@@ -167,7 +167,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
     # we have List[List[torch.Tensor]] since it is possible that some verbs be split into multiple tokens in RoBERTa
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
-    num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl = 0, 0, 0, 0
+    num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc = 0, 0, 0, 0, 0
 
     for phrase in dep_trees:
         num_ph += 1
@@ -197,6 +197,12 @@ def get_contextual_embeddings(path: str, tokenizer, model):
 
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
             verb_to_add = representations.last_hidden_state[0, start, :]
+
+            # because the encodings are truncated to 512!
+            if start >= 512:
+                disc += 1
+                continue
+
             for i in range(start + 1, end):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             verb_to_add /= end - start
@@ -220,7 +226,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
                     verb_embs[lemma][1].append(verb_to_add)
 
     # we have exited the first loop, everything we need is in verb_embs
-    return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl
+    return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
 
 
 with torch.no_grad():
@@ -237,7 +243,7 @@ with torch.no_grad():
     else:
         verb_embeddings = {}
 
-    embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses =\
+    embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
         get_contextual_embeddings(dependency_trees, tokenizer, model)
 
     for verb in embeddings:
@@ -254,4 +260,5 @@ with torch.no_grad():
         file.write(f"Number of negated phrases: {num_negations} ({num_negations / num_phrases})\n")
         file.write(f"Number of negations in dependent clauses: {num_negations_in_dependent_clauses} "
                    f"({num_negations_in_dependent_clauses / num_negations})")
+        file.write(f"Number of discarded verbs: {discarded}")
 

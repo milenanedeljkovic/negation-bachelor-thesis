@@ -1,1 +1,4 @@
 *.conll
+code/*.conll
+*.txt
+code/*.txt
