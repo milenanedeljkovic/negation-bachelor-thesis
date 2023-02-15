@@ -199,7 +199,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
 
             # because the encodings are truncated to 512!
-            if start >= 512:
+            if start >= 512 or end >= 512:
                 disc += 1
                 continue
 
