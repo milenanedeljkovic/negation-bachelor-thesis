@@ -172,6 +172,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
     for phrase in dep_trees:
         num_ph += 1
+        if num_ph % 1000 == 0:
+            print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
 
         phrase_tree = phrase.to_tree()
 
