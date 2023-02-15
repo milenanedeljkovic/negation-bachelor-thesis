@@ -246,28 +246,27 @@ with torch.no_grad():
         verb_embeddings = {}
         dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
 
-
         embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
             get_contextual_embeddings(dependency_trees, tokenizer, model, device)
 
 
-    for verb in embeddings:
-        if verb not in verb_embeddings:
-            verb_embeddings[verb] = embeddings[verb]
-        else:
-            verb_embeddings[verb].extend(embeddings[verb])  # this is addition of lists!
+        for verb in embeddings:
+            if verb not in verb_embeddings:
+                verb_embeddings[verb] = embeddings[verb]
+            else:
+                verb_embeddings[verb].extend(embeddings[verb])  # this is addition of lists!
 
-    torch.save(verb_embeddings, "verb_embeddings")
+        torch.save(verb_embeddings, "verb_embeddings")
 
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Verbs saved =", current_time)
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        print("Verbs saved =", current_time)
 
-    with open(f"{dependency_trees[:-5]}_stats.txt", "a") as file:
-        file.write(f"Number of phrases: {num_phrases}\n")
-        file.write(f"Number of complex phases: {num_complex_phrases} ({num_complex_phrases / num_phrases})\n")
-        file.write(f"Number of negated phrases: {num_negations} ({num_negations / num_phrases})\n")
-        file.write(f"Number of negations in dependent clauses: {num_negations_in_dependent_clauses} "
-                   f"({num_negations_in_dependent_clauses / num_negations})")
-        file.write(f"Number of discarded verbs: {discarded}")
+        with open(f"{dependency_trees[:-5]}_stats.txt", "a") as file:
+            file.write(f"Number of phrases: {num_phrases}\n")
+            file.write(f"Number of complex phases: {num_complex_phrases} ({num_complex_phrases / num_phrases})\n")
+            file.write(f"Number of negated phrases: {num_negations} ({num_negations / num_phrases})\n")
+            file.write(f"Number of negations in dependent clauses: {num_negations_in_dependent_clauses} "
+                       f"({num_negations_in_dependent_clauses / num_negations})")
+            file.write(f"Number of discarded verbs: {discarded}")
 
