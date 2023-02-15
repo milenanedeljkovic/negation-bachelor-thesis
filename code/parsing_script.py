@@ -49,8 +49,8 @@ with torch.no_grad():
             page_text = dataset['train'][i]['text']
             with open(f"parsed/parsed{first_to_parse}.conll", "w") as file:
                 file.write(txt_to_conll(page_text, nlp))
-                current_time = datetime.now().strftime("%H:%M:%S")
-                print(f"Pages [{first_to_parse}:{last_to_parse}] written to file at: {current_time}")
+            current_time = datetime.now().strftime("%H:%M:%S")
+            print(f"Pages [{first_to_parse}:{last_to_parse}] written to file at: {current_time}")
 
     current_time = datetime.now().strftime("%H:%M:%S")
     print(f"Parsing end time: {current_time}")

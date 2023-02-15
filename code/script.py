@@ -235,7 +235,6 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
 
 with torch.no_grad():
-    dependency_trees = sys.argv[1]  # the file with parsed phrases
 
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     model = AutoModel.from_pretrained("roberta-base")
@@ -243,21 +242,14 @@ with torch.no_grad():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
 
-    if os.path.isfile("verb_embeddings"):
-        verb_embeddings = torch.load("verb_embeddings")
-    else:
+    for first_page in range(80000, 2040001, 10000):
         verb_embeddings = {}
+        dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
 
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Embedding Start Time =", current_time)
 
-    embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
-        get_contextual_embeddings(dependency_trees, tokenizer, model, device)
+        embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
+            get_contextual_embeddings(dependency_trees, tokenizer, model, device)
 
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Embedding End Time =", current_time)
 
     for verb in embeddings:
         if verb not in verb_embeddings:
