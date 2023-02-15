@@ -250,7 +250,7 @@ with torch.no_grad():
     print("Embedding Start Time =", current_time)
 
     embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
-        get_contextual_embeddings(dependency_trees, tokenizer, model)
+        get_contextual_embeddings(dependency_trees, tokenizer, model, device)
 
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
