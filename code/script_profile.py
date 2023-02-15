@@ -241,6 +241,7 @@ def test(dependency_trees):
         # model.to(device)
 
         if os.path.isfile("verb_embeddings"):
+            print("File found")
             verb_embeddings = torch.load("verb_embeddings")
         else:
             verb_embeddings = {}
