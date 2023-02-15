@@ -257,8 +257,12 @@ def test(dependency_trees):
         current_time = now.strftime("%H:%M:%S")
         print("Embedding End Time =", current_time)
 
+        print([(key, len(key)) for key in verb_embeddings])
+        print([(key, len(key)) for key in embeddings])
+
         for verb in embeddings:
             if verb not in verb_embeddings:
+                print(f"Adding verb '{verb}'")
                 verb_embeddings[verb] = embeddings[verb]
             else:
                 verb_embeddings[verb] += embeddings[verb]  # this is addition of lists!
