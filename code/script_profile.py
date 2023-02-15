@@ -266,6 +266,7 @@ def test(dependency_trees):
                 verb_embeddings[verb] = embeddings[verb]
             else:
                 verb_embeddings[verb] += embeddings[verb]  # this is addition of lists!
+        os.remove("verb_embeddings")
 
         torch.save(verb_embeddings, "verb_embeddings")
 
