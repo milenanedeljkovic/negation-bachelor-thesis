@@ -280,4 +280,4 @@ def test(dependency_trees):
 import cProfile
 
 test_file = sys.argv[1]
-print(cProfile.run(test(test_file)))
+print(cProfile.run("test(test_file)"))
