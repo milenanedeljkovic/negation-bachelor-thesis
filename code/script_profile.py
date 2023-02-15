@@ -282,7 +282,7 @@ def test(dependency_trees):
             file.write(f"Number of discarded verbs: {discarded}")
 
 
+
 # import cProfile
 #
-# test_file = sys.argv[1]
-# print(cProfile.run("test(test_file)"))
+test(sys.argv[1])
