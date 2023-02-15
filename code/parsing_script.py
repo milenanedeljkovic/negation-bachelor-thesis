@@ -51,7 +51,7 @@ with torch.no_grad():
                 with open(f"parsed/parsed{first_to_parse}.conll", "w") as file:
                     file.write(txt_to_conll(page_text, nlp))
                     current_time = datetime.now().strftime("%H:%M:%S")
-                    print(f"Pages [{first_to_parse}:{last_to_parse}] written to file at: ", current_time)
+                    print(f"Pages [{first_to_parse}:{last_to_parse}] written to file at: {current_time}")
 
     except:
         raise RuntimeError("Parsing failed.")
