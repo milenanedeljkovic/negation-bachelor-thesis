@@ -1,5 +1,5 @@
 import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import sys
 import spacy_conll
 import spacy_stanza
@@ -79,7 +79,7 @@ def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, to
     return token_map
 
 
-def get_contextual_embeddings(path: str, tokenizer, model):
+def get_contextual_embeddings(path: str, tokenizer, model, device):
     """
     Input:
     - path: the location of the .conll file containing dependency trees for each phrase of the text we are analysing
@@ -177,7 +177,7 @@ def get_contextual_embeddings(path: str, tokenizer, model):
 
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True)
+                                max_length=512, padding=True, truncation=True).to(device)
         representations = model(bert_tokens['input_ids'], output_attentions=True, output_hidden_states=True,
                                 return_dict=True)
 
@@ -237,8 +237,8 @@ with torch.no_grad():
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     model = AutoModel.from_pretrained("roberta-base")
 
-    # device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    # model.to(device)
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model.to(device)
 
     if os.path.isfile("verb_embeddings"):
         verb_embeddings = torch.load("verb_embeddings")
@@ -260,7 +260,7 @@ with torch.no_grad():
         if verb not in verb_embeddings:
             verb_embeddings[verb] = embeddings[verb]
         else:
-            verb_embeddings[verb] += embeddings[verb]  # this is addition of lists!
+            verb_embeddings[verb].extend(embeddings[verb])  # this is addition of lists!
 
     torch.save(verb_embeddings, "verb_embeddings")
 
