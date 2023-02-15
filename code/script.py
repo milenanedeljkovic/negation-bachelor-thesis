@@ -175,6 +175,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
         if num_ph % 1000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
 
+
         phrase_tree = phrase.to_tree()
 
         # tokenizing and encoding of the original phrase using RoBERTa
