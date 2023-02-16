@@ -235,6 +235,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
 
 with torch.no_grad():
+    lower, upper = sys.argv[1], sys.argv[2]
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     model = AutoModel.from_pretrained("roberta-base")
 
@@ -243,7 +244,7 @@ with torch.no_grad():
 
     total_phrases, total_complex_phrases, total_negations, total_negations_in_dependent_clauses, total_discarded = 0, 0, 0, 0, 0
 
-    for first_page in range(80000, 2040001, 10000):
+    for first_page in range(lower, upper, 10000):
         dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
 
         embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
