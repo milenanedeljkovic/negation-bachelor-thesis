@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 import torch
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def txt_to_conll(text: str, nlp):
