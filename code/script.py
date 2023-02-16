@@ -235,7 +235,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
 
 with torch.no_grad():
-    lower, upper = sys.argv[1], sys.argv[2]
+    lower, upper = int(sys.argv[1]), int(sys.argv[2])
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     model = AutoModel.from_pretrained("roberta-base")
 
