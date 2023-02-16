@@ -33,6 +33,8 @@ with torch.no_grad():
     # last_to_parse = int(sys.argv[2])
     # writefile = sys.argv[3]
 
+    lower, upper = sys.argv[1], sys.argv[2]
+
     dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
     # if last_to_parse > len(dataset['train']):
@@ -43,7 +45,7 @@ with torch.no_grad():
     current_time = datetime.now().strftime("%H:%M:%S")
     print(f"Parsing start time: {current_time}")
 
-    for first_to_parse in range(80000, 2040001, 10000):
+    for first_to_parse in range(lower, upper, 10000):
         last_to_parse = first_to_parse + 10000
         for i in range(first_to_parse, last_to_parse):
             page_text = dataset['train'][i]['text']
