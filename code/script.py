@@ -57,8 +57,8 @@ def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, to
     for token in phrase:  # this will loop through all stanza tokens
         token = token['form']
         start = i
-        print(token)
         while len(token) > 0:
+            print(f"Token, {i}, {j}")
 
             if bert_tokens[i][j] == "Ġ":  # this signifies the start of a word in RoBERTa in the pre-tokenized phrase
                 j += 1
