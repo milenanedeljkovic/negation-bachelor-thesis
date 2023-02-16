@@ -33,7 +33,7 @@ with torch.no_grad():
     # last_to_parse = int(sys.argv[2])
     # writefile = sys.argv[3]
 
-    lower, upper = sys.argv[1], sys.argv[2]
+    lower, upper = int(sys.argv[1]), int(sys.argv[2])
 
     dataset = load_dataset("bigscience-data/roots_en_wikipedia", use_auth_token=True)
 
