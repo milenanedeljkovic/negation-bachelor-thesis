@@ -182,9 +182,11 @@ def get_contextual_embeddings(path: str, device):
             torch.cuda.empty_cache()
             tokenizer = AutoTokenizer.from_pretrained("roberta-base")
             model = AutoModel.from_pretrained("roberta-base")
+            model.to(device)
             for param in model.parameters():
                 param.requires_grad = False
-            model.to(device)
+            for param in tokenizer.parameters():
+                param.requires_grad = False
 
         phrase_tree = phrase.to_tree()
 
