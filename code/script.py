@@ -195,7 +195,9 @@ def get_contextual_embeddings(path: str, device):
                                 max_length=512, padding=True, truncation=True).to(device)
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
-            representations = model(bert_tokens['input_ids'], return_dict=True)
+            representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
+            representations.detach().cpu().numpy()
+
         total_mem += torch.cuda.memory_allocated(device) - mem
         print(total_mem)
 
@@ -221,12 +223,12 @@ def get_contextual_embeddings(path: str, device):
                 disc += 1
                 continue
 
-            verb_to_add = representations.last_hidden_state[0, start, :]
+            verb_to_add = representations[0, start, :]
 
             verb_to_add.detach().cpu().numpy()
 
             for i in range(start + 1, end):
-                verb_to_add += representations.last_hidden_state[0, i, :]
+                verb_to_add += representations[0, i, :]
                 verb_to_add.detach().cpu().numpy()
             verb_to_add /= end - start
 
