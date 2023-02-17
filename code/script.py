@@ -114,9 +114,6 @@ def get_contextual_embeddings(path: str, device):
         nonlocal clause_found  # a bool, signals whether the phrase was already counted in num_complex_phrases; defined
         # in the loop within get_verb_embeddings
 
-        print(f"Checkpoint 9")
-        print(torch.cuda.memory_allocated(device))
-
         if root.token['upos'] == "VERB":  # the function is called for all children but current_verb
             # and current_index change
             negation_found[root.token['id']] = [0, 0]  # a verb is found but the negation not yet -
