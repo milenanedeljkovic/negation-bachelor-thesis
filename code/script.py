@@ -51,15 +51,10 @@ def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, to
     i = 1  # to walk through bert_tokens. Starts at 1 because bert_tokens[0] is the bos token
     j = 0  # to walk through the RoBERTa token character by character.
     # This will help if words are weirdly cut and glued together
-
-    print(phrase)
-    print(bert_tokens)
-
     for token in phrase:  # this will loop through all stanza tokens
         token = token['form']
         start = i
         while len(token) > 0:
-            print(f"{token}, {i}, {j}")
 
             if bert_tokens[i][j] == "Ġ":  # this signifies the start of a word in RoBERTa in the pre-tokenized phrase
                 j += 1
@@ -176,8 +171,9 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
     for phrase in dep_trees:
         num_ph += 1
-        if num_ph % 1000 == 0:
-            print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
+        if num_ph % 10 == 0:
+            # print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
+            print(torch.cuda.memory_allocated(device))
 
 
         phrase_tree = phrase.to_tree()
