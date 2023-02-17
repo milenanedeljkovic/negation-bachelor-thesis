@@ -173,6 +173,8 @@ def get_contextual_embeddings(path: str, device):
         param.requires_grad = False
     model.to(device)
 
+    total_mem = 0
+
     for phrase in dep_trees:
         num_ph += 1
         if num_ph % 1000 == 0:
@@ -193,7 +195,8 @@ def get_contextual_embeddings(path: str, device):
                                 max_length=512, padding=True, truncation=True).to(device)
         representations = model(bert_tokens['input_ids'], output_hidden_states=True, return_dict=True)
 
-        print(f"{torch.cuda.memory_allocated(device) - mem}, tokens: {bert_tokens['attention_mask'].shape}")
+        total_mem += torch.cuda.memory_allocated(device) - mem
+        print(total_mem)
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
