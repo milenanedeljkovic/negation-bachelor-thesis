@@ -174,7 +174,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             # print(torch.cuda.memory_allocated(device))
             for verb in verb_embs:
                 for emb in verb_embs[verb]:
-                    emb.to("cpu")
+                    for embedding in emb:
+                        embedding.to("cpu")
 
         phrase_tree = phrase.to_tree()
 
