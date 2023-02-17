@@ -28,8 +28,6 @@ def txt_to_conll(text: str, nlp):
 
 import conllu
 from typing import List
-import tensorflow
-
 
 def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, tokenizer):
     """
