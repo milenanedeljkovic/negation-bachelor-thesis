@@ -1,4 +1,5 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import spacy_conll
 import spacy_stanza
 from datasets import load_dataset
@@ -6,7 +7,6 @@ import sys
 from datetime import datetime
 import torch
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def txt_to_conll(text: str, nlp):

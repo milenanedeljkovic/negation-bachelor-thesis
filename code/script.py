@@ -170,8 +170,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     for phrase in dep_trees:
         num_ph += 1
         if num_ph % 10 == 0:
-            # print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
-            # print(torch.cuda.memory_allocated(device))
+            print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
+            print(torch.cuda.memory_allocated(device))
             for verb in verb_embs:
                 for emb in verb_embs[verb]:
                     for embedding in emb:
