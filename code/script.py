@@ -227,7 +227,7 @@ def get_contextual_embeddings(path: str, device):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             verb_to_add /= end - start
 
-            verb_to_add.detach().to("cpu")
+            verb_to_add.detach().cpu().numpy()
 
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
