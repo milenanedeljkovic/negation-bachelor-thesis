@@ -223,6 +223,8 @@ def get_contextual_embeddings(path: str, device):
 
             verb_to_add = representations.last_hidden_state[0, start, :]
 
+            verb_to_add.detach().cpu().numpy()
+
             for i in range(start + 1, end):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             verb_to_add /= end - start
