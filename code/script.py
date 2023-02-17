@@ -171,7 +171,7 @@ def get_contextual_embeddings(path: str, device):
     model = AutoModel.from_pretrained("roberta-base")
     for param in model.parameters():
         param.requires_grad = False
-    model.to(device)
+    model.detach().to(device)
 
     total_mem = 0
 
@@ -182,7 +182,7 @@ def get_contextual_embeddings(path: str, device):
             torch.cuda.empty_cache()
             tokenizer = AutoTokenizer.from_pretrained("roberta-base")
             model = AutoModel.from_pretrained("roberta-base")
-            model.to(device)
+            model.detach().to(device)
             for param in model.parameters():
                 param.requires_grad = False
             for param in tokenizer.parameters():
@@ -192,7 +192,7 @@ def get_contextual_embeddings(path: str, device):
 
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True).to(device)
+                                max_length=512, padding=True, truncation=True).detach().to(device)
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             representations = model(bert_tokens['input_ids'], return_dict=True)
@@ -203,14 +203,12 @@ def get_contextual_embeddings(path: str, device):
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
                                               tokenizer)
 
-
         negation_found = {}  # Dict[int, [int, int]], maps the index of a verb to  a tuple (num_aux, num_negations) -
         # the number of auxiliaries and the number of negations of the verb)
 
         clause_found = False
         # depth first search from the tree: see function above
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
-
 
         # current_verbs are now filled
         for index in negation_found:
@@ -229,7 +227,7 @@ def get_contextual_embeddings(path: str, device):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             verb_to_add /= end - start
 
-            verb_to_add.to("cpu")
+            verb_to_add.detach().to("cpu")
 
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
@@ -272,11 +270,11 @@ with torch.no_grad():
 
         torch.save(embeddings, f"embeddings/embeddings{first_page}")
 
-    with open(f"wikistats.txt", "a") as file:
-        file.write(f"Number of phrases: {total_phrases}\n")
-        file.write(f"Number of complex phases: {total_complex_phrases} ({total_complex_phrases / total_phrases})\n")
-        file.write(f"Number of negated phrases: {total_negations} ({total_negations / total_phrases})\n")
-        file.write(f"Number of negations in dependent clauses: {total_negations_in_dependent_clauses} "
-                   f"({total_negations_in_dependent_clauses / total_negations})")
-        file.write(f"Number of discarded verbs: {total_discarded}")
+with open(f"wikistats.txt", "a") as file:
+    file.write(f"Number of phrases: {total_phrases}\n")
+    file.write(f"Number of complex phases: {total_complex_phrases} ({total_complex_phrases / total_phrases})\n")
+    file.write(f"Number of negated phrases: {total_negations} ({total_negations / total_phrases})\n")
+    file.write(f"Number of negations in dependent clauses: {total_negations_in_dependent_clauses} "
+               f"({total_negations_in_dependent_clauses / total_negations})")
+    file.write(f"Number of discarded verbs: {total_discarded}")
 
