@@ -173,7 +173,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             # print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             # print(torch.cuda.memory_allocated(device))
             for verb in verb_embs:
-                verb.to("cpu")
+                for emb in verb_embs[verb]:
+                    emb.to("cpu")
 
 
         phrase_tree = phrase.to_tree()
