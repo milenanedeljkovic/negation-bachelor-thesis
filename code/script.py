@@ -172,6 +172,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
         if num_ph % 100 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             print(torch.cuda.memory_allocated(device))
+            torch.cuda.empty_cache()
 
         phrase_tree = phrase.to_tree()
 
