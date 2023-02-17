@@ -169,13 +169,9 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
     for phrase in dep_trees:
         num_ph += 1
-        if num_ph % 10 == 0:
+        if num_ph % 100 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             print(torch.cuda.memory_allocated(device))
-            for verb in verb_embs:
-                for emb in verb_embs[verb]:
-                    for embedding in emb:
-                        embedding.to("cpu")
 
         phrase_tree = phrase.to_tree()
 
@@ -212,6 +208,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             for i in range(start + 1, end):
                 verb_to_add += representations.last_hidden_state[0, i, :]
             verb_to_add /= end - start
+
+            verb_to_add.to("cpu")
 
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
