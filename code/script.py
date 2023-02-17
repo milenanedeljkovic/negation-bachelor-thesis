@@ -173,6 +173,11 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             print(torch.cuda.memory_allocated(device))
             torch.cuda.empty_cache()
+            tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+            model = AutoModel.from_pretrained("roberta-base")
+
+            device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+            model.to(device)
 
         phrase_tree = phrase.to_tree()
 
