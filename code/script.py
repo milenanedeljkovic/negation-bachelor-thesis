@@ -114,6 +114,9 @@ def get_contextual_embeddings(path: str, device):
         nonlocal clause_found  # a bool, signals whether the phrase was already counted in num_complex_phrases; defined
         # in the loop within get_verb_embeddings
 
+        print(f"Checkpoint 9")
+        print(torch.cuda.memory_allocated(device))
+
         if root.token['upos'] == "VERB":  # the function is called for all children but current_verb
             # and current_index change
             negation_found[root.token['id']] = [0, 0]  # a verb is found but the negation not yet -
@@ -158,6 +161,8 @@ def get_contextual_embeddings(path: str, device):
                         depth_search(child, current_verb, current_index, False)
 
     # reading the file from path
+    print(f"Checkpoint 1")
+    print(torch.cuda.memory_allocated(device))
     f = open(path)
     dep_trees = conllu.parse_incr(f)
 
@@ -171,14 +176,16 @@ def get_contextual_embeddings(path: str, device):
     model = AutoModel.from_pretrained("roberta-base")
     for param in model.parameters():
         param.requires_grad = False
-
+    print(f"Checkpoint 2")
+    print(torch.cuda.memory_allocated(device))
     model.to(device)
 
     for phrase in dep_trees:
+        print(f"Checkpoint 3")
+        print(torch.cuda.memory_allocated(device))
         num_ph += 1
         if num_ph % 1000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
-            print(torch.cuda.memory_allocated(device))
             torch.cuda.empty_cache()
             tokenizer = AutoTokenizer.from_pretrained("roberta-base")
             model = AutoModel.from_pretrained("roberta-base")
@@ -188,15 +195,23 @@ def get_contextual_embeddings(path: str, device):
 
         phrase_tree = phrase.to_tree()
 
+        print(f"Checkpoint 4")
+        print(torch.cuda.memory_allocated(device))
+
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
                                 max_length=512, padding=True, truncation=True).to(device)
-        representations = model(bert_tokens['input_ids'], output_attentions=True, output_hidden_states=True,
-                                return_dict=True)
+        representations = model(bert_tokens['input_ids'], output_hidden_states=True, return_dict=True)
+
+        print(f"Checkpoint 5")
+        print(torch.cuda.memory_allocated(device))
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
                                               tokenizer)
+
+        print(f"Checkpoint 6")
+        print(torch.cuda.memory_allocated(device))
 
         negation_found = {}  # Dict[int, [int, int]], maps the index of a verb to  a tuple (num_aux, num_negations) -
         # the number of auxiliaries and the number of negations of the verb)
@@ -204,6 +219,9 @@ def get_contextual_embeddings(path: str, device):
         clause_found = False
         # depth first search from the tree: see function above
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
+
+        print(f"Checkpoint 7")
+        print(torch.cuda.memory_allocated(device))
 
         # current_verbs are now filled
         for index in negation_found:
@@ -241,6 +259,9 @@ def get_contextual_embeddings(path: str, device):
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
+
+    print(f"Checkpoint 8")
+    print(torch.cuda.memory_allocated(device))
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
