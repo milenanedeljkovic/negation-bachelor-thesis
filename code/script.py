@@ -171,7 +171,7 @@ def get_contextual_embeddings(path: str, device):
     model = AutoModel.from_pretrained("roberta-base")
     for param in model.parameters():
         param.requires_grad = False
-    model.detach().to(device)
+    model.to(device)
 
     total_mem = 0
 
@@ -182,7 +182,7 @@ def get_contextual_embeddings(path: str, device):
             torch.cuda.empty_cache()
             tokenizer = AutoTokenizer.from_pretrained("roberta-base")
             model = AutoModel.from_pretrained("roberta-base")
-            model.detach().to(device)
+            model.to(device)
             for param in model.parameters():
                 param.requires_grad = False
             for param in tokenizer.parameters():
@@ -192,7 +192,7 @@ def get_contextual_embeddings(path: str, device):
 
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True).detach().to(device)
+                                max_length=512, padding=True, truncation=True).to(device)
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             representations = model(bert_tokens['input_ids'], return_dict=True)
