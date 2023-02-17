@@ -171,7 +171,7 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
     for phrase in dep_trees:
         num_ph += 1
-        if num_ph % 10 == 0:
+        if num_ph % 1000 == 0:
             # print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             print(torch.cuda.memory_allocated(device))
 
@@ -241,6 +241,9 @@ with torch.no_grad():
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
+
+    for param in model.parameters():
+        param.requires_grad = False
 
     total_phrases, total_complex_phrases, total_negations, total_negations_in_dependent_clauses, total_discarded = 0, 0, 0, 0, 0
 
