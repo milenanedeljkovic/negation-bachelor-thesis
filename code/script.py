@@ -193,7 +193,7 @@ def get_contextual_embeddings(path: str, device):
                                 max_length=512, padding=True, truncation=True).to(device)
         representations = model(bert_tokens['input_ids'], output_hidden_states=True, return_dict=True)
 
-        print(f"{mem - torch.cuda.memory_allocated(device)}, tokens: {len(bert_tokens)}")
+        print(f"{torch.cuda.memory_allocated(device) - mem}, tokens: {len(bert_tokens)}")
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
