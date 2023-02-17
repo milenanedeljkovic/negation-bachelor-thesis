@@ -176,7 +176,6 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
                 for emb in verb_embs[verb]:
                     emb.to("cpu")
 
-
         phrase_tree = phrase.to_tree()
 
         # tokenizing and encoding of the original phrase using RoBERTa
