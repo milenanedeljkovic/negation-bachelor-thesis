@@ -195,9 +195,10 @@ def get_contextual_embeddings(path: str, device):
         # tokenizing and encoding of the original phrase using RoBERTa
         bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
                                 max_length=512, padding=True, truncation=True).to(device)
+        total_mem += torch.cuda.memory_allocated(device) - mem
+
         representations = model(bert_tokens['input_ids'], output_hidden_states=True, return_dict=True)
 
-        total_mem += torch.cuda.memory_allocated(device) - mem
         print(total_mem)
 
         # getting the stanza to RoBERTa token map
