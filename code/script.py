@@ -8,6 +8,7 @@ from transformers import AutoModel, AutoTokenizer
 import torch
 from datetime import datetime
 
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 def txt_to_conll(text: str, nlp):
     """Input:
@@ -76,7 +77,7 @@ def stanza_to_bert_tokens(phrase: conllu.models.TokenList, bert_tokenization, to
     return token_map
 
 
-def get_contextual_embeddings(path: str, tokenizer, model, device):
+def get_contextual_embeddings(path: str, device):
     """
     Input:
     - path: the location of the .conll file containing dependency trees for each phrase of the text we are analysing
@@ -166,6 +167,12 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
     num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc = 0, 0, 0, 0, 0
+    tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+    model = AutoModel.from_pretrained("roberta-base")
+    for param in model.parameters():
+        param.requires_grad = False
+
+    model.to(device)
 
     for phrase in dep_trees:
         num_ph += 1
@@ -175,8 +182,8 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
             torch.cuda.empty_cache()
             tokenizer = AutoTokenizer.from_pretrained("roberta-base")
             model = AutoModel.from_pretrained("roberta-base")
-
-            device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+            for param in model.parameters():
+                param.requires_grad = False
             model.to(device)
 
         phrase_tree = phrase.to_tree()
@@ -241,14 +248,6 @@ def get_contextual_embeddings(path: str, tokenizer, model, device):
 
 with torch.no_grad():
     lower, upper = int(sys.argv[1]), int(sys.argv[2])
-    tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-    model = AutoModel.from_pretrained("roberta-base")
-
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    model.to(device)
-
-    for param in model.parameters():
-        param.requires_grad = False
 
     total_phrases, total_complex_phrases, total_negations, total_negations_in_dependent_clauses, total_discarded = 0, 0, 0, 0, 0
 
@@ -256,7 +255,7 @@ with torch.no_grad():
         dependency_trees = f"parsed/parsed{first_page}-fixed.conll"  # the file with parsed phrases
 
         embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
-            get_contextual_embeddings(dependency_trees, tokenizer, model, device)
+            get_contextual_embeddings(dependency_trees, device)
 
         total_phrases += num_phrases
         total_complex_phrases += num_complex_phrases
