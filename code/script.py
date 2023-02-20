@@ -201,6 +201,7 @@ def get_contextual_embeddings(path: str, device):
         # depth first search from the tree: see function above
         print(phrase_tree)
         print(phrase_tree.token)
+        print(phrase_tree.token.keys)
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
 
         # current_verbs are now filled
