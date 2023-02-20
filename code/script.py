@@ -183,6 +183,9 @@ def get_contextual_embeddings(path: str, device):
 
         phrase_tree = phrase.to_tree()
 
+        if 'lemma' not in phrase_tree.token.keys() or 'id' not in phrase_tree.token.keys():
+            continue
+
         # tokenizing and encoding of the original phrase using RoBERTa
         with torch.no_grad():
             bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
@@ -199,9 +202,7 @@ def get_contextual_embeddings(path: str, device):
 
         clause_found = False
         # depth first search from the tree: see function above
-        print(phrase_tree)
-        print(phrase_tree.token)
-        print(phrase_tree.token.keys)
+
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
 
         # current_verbs are now filled
