@@ -196,7 +196,7 @@ def get_contextual_embeddings(path: str, device):
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
-            representations.detach().cpu().numpy()
+            representations.detach().cpu()
 
         total_mem += torch.cuda.memory_allocated(device) - mem
         print(total_mem)
@@ -225,32 +225,32 @@ def get_contextual_embeddings(path: str, device):
 
             verb_to_add = representations[0, start, :]
 
-            verb_to_add.detach().cpu().numpy()
+            verb_to_add.detach().cpu()
 
             for i in range(start + 1, end):
                 verb_to_add += representations[0, i, :]
                 verb_to_add.detach().cpu()
             verb_to_add /= end - start
 
-            verb_to_add.detach().cpu().numpy()
+            verb_to_add.detach().cpu()
 
-            # if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
-            #     if lemma not in verb_embs:
-            #         verb_embs[lemma] = [[], [verb_to_add]]
-            #     else:
-            #         verb_embs[lemma][1].append(verb_to_add)
-            # elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
-            #     # bigger than or equal to the number of auxiliaries
-            #     if lemma not in verb_embs:
-            #         verb_embs[lemma] = [[verb_to_add], []]
-            #     else:
-            #         verb_embs[lemma][0].append(verb_to_add)
-            # else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
-            #     if lemma not in verb_embs:
-            #         verb_embs[lemma] = [[verb_to_add], [verb_to_add]]
-            #     else:
-            #         verb_embs[lemma][0].append(verb_to_add)
-            #         verb_embs[lemma][1].append(verb_to_add)
+            if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
+                if lemma not in verb_embs:
+                    verb_embs[lemma] = [[], [verb_to_add]]
+                else:
+                    verb_embs[lemma][1].append(verb_to_add)
+            elif negation_found[index][1] >= negation_found[index][0]:  # the number of negations is
+                # bigger than or equal to the number of auxiliaries
+                if lemma not in verb_embs:
+                    verb_embs[lemma] = [[verb_to_add], []]
+                else:
+                    verb_embs[lemma][0].append(verb_to_add)
+            else:  # then negations were found but not for every auxiliary, thus we add the tensors to both sides
+                if lemma not in verb_embs:
+                    verb_embs[lemma] = [[verb_to_add], [verb_to_add]]
+                else:
+                    verb_embs[lemma][0].append(verb_to_add)
+                    verb_embs[lemma][1].append(verb_to_add)
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
