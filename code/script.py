@@ -189,7 +189,7 @@ def get_contextual_embeddings(path: str, device):
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                    max_length=512, padding=True, truncation=True)
+                                    max_length=512, padding=True, truncation=True).to(device)
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
             representations = representations.detach().cpu()
 
@@ -227,7 +227,7 @@ def get_contextual_embeddings(path: str, device):
                 verb_to_add.detach().cpu()
             verb_to_add /= end - start
 
-            verb_to_add.detach().cpu()
+            verb_to_add = verb_to_add.detach().cpu()
 
             if negation_found[index][1] == 0:  # negation wasn't found for the verb at position index
                 if lemma not in verb_embs:
