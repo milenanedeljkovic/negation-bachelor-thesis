@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import sys
 import spacy_conll
 import spacy_stanza
@@ -172,9 +172,9 @@ def get_contextual_embeddings(path: str, device):
     model = AutoModel.from_pretrained("roberta-base")
     for param in model.parameters():
         param.requires_grad = False
-    #model.to(device)
+    model.to(device)
 
-    # total_mem_tokenizing = 0
+    total_mem_tokenizing = 0
 
     for phrase in dep_trees:
         num_ph += 1
@@ -186,15 +186,15 @@ def get_contextual_embeddings(path: str, device):
         phrase_tree = phrase.to_tree()
 
         # tokenizing and encoding of the original phrase using RoBERTa
-        # mem = torch.cuda.memory_allocated("cpu")
+        mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
                                     max_length=512, padding=True, truncation=True)
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
-            representations.detach().cpu()
+            representations = representations.detach().cpu()
 
-        # total_mem_tokenizing += torch.cuda.memory_allocated("cpu") - mem
-        # print(f"After tokenizing: {total_mem_tokenizing}")
+        total_mem_tokenizing += torch.cuda.memory_allocated(device) - mem
+        print(f"After tokenizing: {total_mem_tokenizing}")
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
