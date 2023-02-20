@@ -174,7 +174,6 @@ def get_contextual_embeddings(path: str, device):
     model.to(device)
 
     total_mem_tokenizing = 0
-    total_mem_verbadd = 0
 
     for phrase in dep_trees:
         num_ph += 1
@@ -252,6 +251,8 @@ def get_contextual_embeddings(path: str, device):
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
+
+        del bert_tokens, representations
 
 
     # we have exited the first loop, everything we need is in verb_embs
