@@ -174,12 +174,13 @@ def get_contextual_embeddings(path: str, device):
         param.requires_grad = False
     #model.to(device)
 
-    total_mem_tokenizing = 0
+    # total_mem_tokenizing = 0
 
     for phrase in dep_trees:
         num_ph += 1
         if num_ph % 1000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
+            print(f"Memory usage: {torch.cuda.memory_allocated('cpu')}")
             torch.cuda.empty_cache()
 
         phrase_tree = phrase.to_tree()
