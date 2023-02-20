@@ -192,10 +192,10 @@ def get_contextual_embeddings(path: str, device):
         phrase_tree = phrase.to_tree()
 
         # tokenizing and encoding of the original phrase using RoBERTa
-        bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                max_length=512, padding=True, truncation=True).to(device)
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
+            bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
+                                    max_length=512, padding=True, truncation=True).to(device)
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
             representations.detach().cpu()
 
@@ -213,7 +213,6 @@ def get_contextual_embeddings(path: str, device):
         # depth first search from the tree: see function above
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
 
-        mem = torch.cuda.memory_allocated(device)
         # current_verbs are now filled
         for index in negation_found:
             lemma = phrase[index - 1]['lemma']
@@ -254,8 +253,6 @@ def get_contextual_embeddings(path: str, device):
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
 
-        total_mem_verbadd += torch.cuda.memory_allocated(device) - mem
-        print(f"After adding verb: {total_mem_verbadd}")
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
