@@ -192,7 +192,7 @@ def get_contextual_embeddings(path: str, device):
         phrase_tree = phrase.to_tree()
 
         # tokenizing and encoding of the original phrase using RoBERTa
-        mem = torch.cuda.memory_allocated("cpu")
+        # mem = torch.cuda.memory_allocated("cpu")
         with torch.no_grad():
             bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
                                     max_length=512, padding=True, truncation=True)
@@ -200,7 +200,7 @@ def get_contextual_embeddings(path: str, device):
             representations.detach().cpu()
 
         total_mem_tokenizing += torch.cuda.memory_allocated("cpu") - mem
-        print(f"After tokenizing: {total_mem_tokenizing}")
+        # print(f"After tokenizing: {total_mem_tokenizing}")
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
