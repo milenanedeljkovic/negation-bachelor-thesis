@@ -167,15 +167,16 @@ def get_contextual_embeddings(path: str, device):
     verb_embs = {}  # Dict[str, [List[torch.Tensor], List[torch.Tensor]]]
 
     num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc = 0, 0, 0, 0, 0
-    tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-    model = AutoModel.from_pretrained("roberta-base")
-    for param in model.parameters():
-        param.requires_grad = False
-    model.to(device)
 
     total_mem_tokenizing = 0
 
     for phrase in dep_trees:
+        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+        model = AutoModel.from_pretrained("roberta-base")
+        for param in model.parameters():
+            param.requires_grad = False
+        model.to(device)
+
         num_ph += 1
         if num_ph % 1000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
@@ -251,9 +252,6 @@ def get_contextual_embeddings(path: str, device):
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
-
-        del bert_tokens, representations
-
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
