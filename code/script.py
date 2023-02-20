@@ -264,6 +264,8 @@ with torch.no_grad():
 
         torch.save(embeddings, f"embeddings/embeddings{first_page}")
 
+        print(f"Saved from page {first_page}")
+
 with open(f"wikistats.txt", "a") as file:
     file.write(f"Number of phrases: {total_phrases}\n")
     file.write(f"Number of complex phases: {total_complex_phrases} ({total_complex_phrases / total_phrases})\n")
