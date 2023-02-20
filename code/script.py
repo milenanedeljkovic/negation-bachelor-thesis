@@ -199,7 +199,7 @@ def get_contextual_embeddings(path: str, device):
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
             representations.detach().cpu()
 
-        total_mem_tokenizing += torch.cuda.memory_allocated("cpu") - mem
+        # total_mem_tokenizing += torch.cuda.memory_allocated("cpu") - mem
         # print(f"After tokenizing: {total_mem_tokenizing}")
 
         # getting the stanza to RoBERTa token map
