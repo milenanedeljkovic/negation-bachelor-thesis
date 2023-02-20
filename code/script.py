@@ -264,13 +264,40 @@ with torch.no_grad():
 
         torch.save(embeddings, f"embeddings/embeddings{first_page}")
 
+        embeddings_average = {}
+        for key in embeddings:
+            embeddings_average[key] = []
+            if len(embeddings[key][0]) > 1:
+                neg_avg = embeddings[key][0][0]
+                for repr in embeddings[key][0][1:]:
+                    neg_avg += repr
+                embeddings_average.append(neg_avg)
+            elif len(embeddings[key][0]) == 1:
+                embeddings_average.append(embeddings[key][0][0])
+            else:
+                embeddings_average.append([])
+
+            if len(embeddings[key][1]) > 1:
+                pos_avg = embeddings[key][1][0]
+                for repr in embeddings[key][1][1:]:
+                    pos_avg += repr
+                embeddings_average.append(pos_avg)
+            elif len(embeddings[key][1]) == 1:
+                embeddings_average.append(embeddings[key][1][0])
+            else:
+                embeddings_average.append([])
+
+        torch.save(embeddings_average, f"embeddings-avg/embeddings-avg{first_page}")
+
         print(f"Saved from page {first_page}")
 
-with open(f"wikistats.txt", "a") as file:
-    file.write(f"Number of phrases: {total_phrases}\n")
-    file.write(f"Number of complex phases: {total_complex_phrases} ({total_complex_phrases / total_phrases})\n")
-    file.write(f"Number of negated phrases: {total_negations} ({total_negations / total_phrases})\n")
-    file.write(f"Number of negations in dependent clauses: {total_negations_in_dependent_clauses} "
-               f"({total_negations_in_dependent_clauses / total_negations})")
-    file.write(f"Number of discarded verbs: {total_discarded}")
+        with open(f"wikistats.txt", "a") as file:
+            file.write(f"From page: {first_page}\n")
+            file.write(f"Number of phrases: {total_phrases}\n")
+            file.write(f"Number of complex phases: {total_complex_phrases} ({total_complex_phrases / total_phrases})\n")
+            file.write(f"Number of negated phrases: {total_negations} ({total_negations / total_phrases})\n")
+            file.write(f"Number of negations in dependent clauses: {total_negations_in_dependent_clauses} "
+                       f"({total_negations_in_dependent_clauses / total_negations})")
+            file.write(f"Number of discarded verbs: {total_discarded}\n\n\n")
+
 
