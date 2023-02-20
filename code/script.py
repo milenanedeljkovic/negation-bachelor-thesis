@@ -255,7 +255,7 @@ def get_contextual_embeddings(path: str, device):
                     verb_embs[lemma][1].append(verb_to_add)
 
         total_mem_verbadd += torch.cuda.memory_allocated(device) - mem
-        print(f"After tokenizing: {total_mem_verbadd}")
+        print(f"After adding verb: {total_mem_verbadd}")
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
