@@ -266,26 +266,7 @@ with torch.no_grad():
 
         embeddings_average = {}
         for key in embeddings:
-            embeddings_average[key] = []
-            if len(embeddings[key][0]) > 1:
-                neg_avg = embeddings[key][0][0]
-                for repr in embeddings[key][0][1:]:
-                    neg_avg += repr
-                embeddings_average.append(neg_avg)
-            elif len(embeddings[key][0]) == 1:
-                embeddings_average.append(embeddings[key][0][0])
-            else:
-                embeddings_average.append([])
-
-            if len(embeddings[key][1]) > 1:
-                pos_avg = embeddings[key][1][0]
-                for repr in embeddings[key][1][1:]:
-                    pos_avg += repr
-                embeddings_average.append(pos_avg)
-            elif len(embeddings[key][1]) == 1:
-                embeddings_average.append(embeddings[key][1][0])
-            else:
-                embeddings_average.append([])
+            embeddings_average[key] = [sum(embeddings[key][0]), sum(embeddings[key][1])]
 
         torch.save(embeddings_average, f"embeddings-avg/embeddings-avg{first_page}")
 
