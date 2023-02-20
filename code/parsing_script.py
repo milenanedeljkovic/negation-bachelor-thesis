@@ -42,8 +42,7 @@ with torch.no_grad():
 
     nlp = spacy_conll.init_parser("en", "stanza", parser_opts={"use_gpu": True, "verbose": False}, include_headers=True)
 
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print(f"Parsing start time: {current_time}")
+    print(f"Parsing start time: {datetime.now()}")
 
     for first_to_parse in range(lower, upper, 10000):
         last_to_parse = first_to_parse + 10000
@@ -55,7 +54,6 @@ with torch.no_grad():
         current_time = datetime.now().strftime("%H:%M:%S")
         print(f"Pages [{first_to_parse}:{last_to_parse}] written to file at: {current_time}")
 
-    current_time = datetime.now().strftime("%H:%M:%S")
-    print(f"Parsing end time: {current_time}")
+    print(f"Parsing end time: {datetime.now()}")
     # print(f"Number of pages processed: {last_to_parse - first_to_parse}")
 
