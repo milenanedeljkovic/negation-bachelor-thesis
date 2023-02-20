@@ -168,15 +168,15 @@ def get_contextual_embeddings(path: str, device):
 
     num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc = 0, 0, 0, 0, 0
 
+    tokenizer = AutoTokenizer.from_pretrained("roberta-base")
+    model = AutoModel.from_pretrained("roberta-base")
+    for param in model.parameters():
+        param.requires_grad = False
+    model.to(device)
+
     total_mem_tokenizing = 0
 
     for phrase in dep_trees:
-        tokenizer = AutoTokenizer.from_pretrained("roberta-base")
-        model = AutoModel.from_pretrained("roberta-base")
-        for param in model.parameters():
-            param.requires_grad = False
-        model.to(device)
-
         num_ph += 1
         if num_ph % 1000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
@@ -195,7 +195,7 @@ def get_contextual_embeddings(path: str, device):
         mem = torch.cuda.memory_allocated(device)
         with torch.no_grad():
             bert_tokens = tokenizer(phrase_tree.metadata['text'], return_tensors='pt',
-                                    max_length=512, padding=True, truncation=True).to(device)
+                                    max_length=512, padding=True, truncation=True)
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
             representations.detach().cpu()
 
