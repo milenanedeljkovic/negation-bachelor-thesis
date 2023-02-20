@@ -172,7 +172,7 @@ def get_contextual_embeddings(path: str, device):
     model = AutoModel.from_pretrained("roberta-base")
     for param in model.parameters():
         param.requires_grad = False
-    model.to(device)
+    #model.to(device)
 
     total_mem_tokenizing = 0
 
