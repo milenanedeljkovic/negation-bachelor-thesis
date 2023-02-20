@@ -173,7 +173,8 @@ def get_contextual_embeddings(path: str, device):
         param.requires_grad = False
     model.to(device)
 
-    total_mem = 0
+    total_mem_tokenizing = 0
+    total_mem_verbadd = 0
 
     for phrase in dep_trees:
         num_ph += 1
@@ -198,8 +199,8 @@ def get_contextual_embeddings(path: str, device):
             representations = model(bert_tokens['input_ids'], return_dict=True).last_hidden_state
             representations.detach().cpu()
 
-        total_mem += torch.cuda.memory_allocated(device) - mem
-        print(total_mem)
+        total_mem_tokenizing += torch.cuda.memory_allocated(device) - mem
+        print(f"After tokenizing: {total_mem_tokenizing}")
 
         # getting the stanza to RoBERTa token map
         token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
@@ -212,6 +213,7 @@ def get_contextual_embeddings(path: str, device):
         # depth first search from the tree: see function above
         depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
 
+        mem = torch.cuda.memory_allocated(device)
         # current_verbs are now filled
         for index in negation_found:
             lemma = phrase[index - 1]['lemma']
@@ -251,6 +253,9 @@ def get_contextual_embeddings(path: str, device):
                 else:
                     verb_embs[lemma][0].append(verb_to_add)
                     verb_embs[lemma][1].append(verb_to_add)
+
+        total_mem_verbadd += torch.cuda.memory_allocated(device) - mem
+        print(f"After tokenizing: {total_mem_verbadd}")
 
     # we have exited the first loop, everything we need is in verb_embs
     return verb_embs, num_ph, num_complex_ph, num_neg, num_negations_in_dependent_cl, disc
