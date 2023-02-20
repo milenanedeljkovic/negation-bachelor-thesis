@@ -252,7 +252,7 @@ with torch.no_grad():
 
     for first_page in range(lower, upper, 10000):
         #dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
-        dependency_trees = "text_script.conll"
+        dependency_trees = "test_script.conll"
 
         embeddings, num_phrases, num_complex_phrases, num_negations, num_negations_in_dependent_clauses, discarded =\
             get_contextual_embeddings(dependency_trees, device)
