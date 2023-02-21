@@ -270,7 +270,7 @@ with torch.no_grad():
 
         embeddings_average = {}
         for key in embeddings:
-            embeddings_average[key] = [sum(embeddings[key][0]), sum(embeddings[key][1])]
+            embeddings_average[key] = [sum(embeddings[key][0]), sum(embeddings[key][1]), len(embeddings[key][0]), len(embeddings[key][1])]
 
         torch.save(embeddings_average, f"embeddings-avg/embeddings-avg{first_page}")
 
