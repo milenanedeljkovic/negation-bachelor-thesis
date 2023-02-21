@@ -26,7 +26,7 @@ dict = {}
 for i in range(first, last, 10000):
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
-    with open(f"from{first}-from{i}.csv", "w") as file:
+    with open(f"csv_files/from{first}-from{i}.csv", "w") as file:
         writer = csv.writer(file)
 
         writer.writerow([f"First chunk: {first}", f"Last chunk: {i}"])
