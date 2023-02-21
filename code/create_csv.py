@@ -42,6 +42,8 @@ for i in range(first, last, 10000):
                 # the value in that case will be 0 and of type int
                 cos_sim, cos_sim_nor = 'undefined', 'undefined'
             else:
+                print(type(dict[key][0]))
+                print(type(dict[key][1]))
                 cos_sim = cossim(dict[key][0], dict[key][1])
                 cos_sim_nor = cossim(normalize(dict[key][0]), normalize(dict[key][1]))
             writer.writerow([f"{key}", f"{total_occ}", f"{dict[key][3]}", f"{dict[key][2]}",
