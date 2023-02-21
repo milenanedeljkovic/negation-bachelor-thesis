@@ -1,6 +1,6 @@
 import torch
 
-for i in range(130000, 220001, 10000):
+for i in range(140000, 220001, 10000):
     embeddings = torch.load(f"embeddings/embeddings{i}")
     for key in embeddings:
         num_neg = len(embeddings[key][0])
