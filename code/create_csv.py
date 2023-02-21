@@ -43,6 +43,8 @@ for i in range(first, last, 10000):
             else:
                 print(type(dict[key][0]))
                 print(type(dict[key][1]))
+                print(normalize(dict[key][0]))
+                print(type(normalize(dict[key][0])))
                 cos_sim = cossim(dict[key][0], dict[key][1])
                 cos_sim_nor = cossim(normalize(dict[key][0]), normalize(dict[key][1]))
             writer.writerow([f"{key}", f"{total_occ}", f"{dict[key][3]}", f"{dict[key][2]}",
