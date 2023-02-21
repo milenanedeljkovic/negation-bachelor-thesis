@@ -1,11 +1,14 @@
 import csv
 import torch
 import sys
+from torch.nn.functional import normalize
+from torch.nn import CosineSimilarity
 
 # This script incrementally merges dictionaries containing average representations of verbs
 # and makes a new csv file at each step. It processed the first 10000 pages, writes them into a .csv file,
 # then merges the next 10000 and writes the merged information into a new .csv files and so on.
 # The first and last embeddings-avg file to process are given as arguments
+
 
 def merge_dict(dict1, dict2):
     """Merges two dictionaries as created in script.py and written in files in embeddings-avg"""
@@ -27,9 +30,16 @@ for i in range(first, last, 10000):
         writer = csv.writer(file)
 
         writer.writerow([f"First chunk: {first}", f"Last chunk: {i}"])
-        writer.writerow(['lemma', 'total occ', 'affirmative', 'negated', 'perc negated', 'cosine'])
+        writer.writerow(['lemma', 'total occ', 'num non neg', 'num neg', 'perc neg', 'cos', 'cos from normalized'])
 
         for key in dict:
             total_occ = dict[key][2] + dict[key][3]
-            writer.writerow([f"{key}", f"{total_occ}", f"{dict[key][3]}", f"{dict[key][2]}", f"{dict[key][2] / total_occ}",
-                             f"{torch.nn.CosineSimilarity(dict[key][0], dict[key][1])}"])
+            if type(dict[key][0]) == int or type(dict[key][1]) == int:
+                # this means that there were no negated or no non-negated occurrences
+                # the value in that case will be 0 and of type int
+                cos_sim, cos_sim_nor = 'undefined', 'undefined'
+            else:
+                cos_sim = CosineSimilarity(dict[key][0], dict[key][1])
+                cos_sim_nor = CosineSimilarity(normalize(dict[key][0]), normalize(dict[key][1]))
+            writer.writerow([f"{key}", f"{total_occ}", f"{dict[key][3]}", f"{dict[key][2]}",
+                             f"{dict[key][2] / total_occ}", f"{cos_sim}", f"{cos_sim_nor}"])
