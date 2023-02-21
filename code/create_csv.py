@@ -21,7 +21,7 @@ def merge_dict(dict1, dict2):
 
 
 # the first and the last chunk of 10000 we want to process
-first, last = sys.argv[1], sys.argv[2]
+first, last = int(sys.argv[1]), int(sys.argv[2])
 dict = {}
 for i in range(first, last, 10000):
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
