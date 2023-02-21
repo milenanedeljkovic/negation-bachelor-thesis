@@ -23,6 +23,9 @@ def merge_dict(dict1, dict2):
 # the first and the last chunk of 10000 we want to process
 first, last = int(sys.argv[1]), int(sys.argv[2])
 dict = {}
+cossim = CosineSimilarity(dim=0)
+
+
 for i in range(first, last, 10000):
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
@@ -39,7 +42,7 @@ for i in range(first, last, 10000):
                 # the value in that case will be 0 and of type int
                 cos_sim, cos_sim_nor = 'undefined', 'undefined'
             else:
-                cos_sim = CosineSimilarity(dict[key][0], dict[key][1])
-                cos_sim_nor = CosineSimilarity(normalize(dict[key][0]), normalize(dict[key][1]))
+                cos_sim = cossim(dict[key][0], dict[key][1])
+                cos_sim_nor = cossim(normalize(dict[key][0]), normalize(dict[key][1]))
             writer.writerow([f"{key}", f"{total_occ}", f"{dict[key][3]}", f"{dict[key][2]}",
                              f"{dict[key][2] / total_occ}", f"{cos_sim}", f"{cos_sim_nor}"])
