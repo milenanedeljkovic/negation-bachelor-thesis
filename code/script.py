@@ -133,7 +133,7 @@ def get_contextual_embeddings(path: str, device):
             if root.token['upos'] == "AUX":  # we have found an auxiliary
                 if current_index in negation_found:  # we check if it is really the auxiliary of current_verb
                     negation_found[current_index][0] += 1
-                if root.token['lemma'] == 'cannot':
+                if root.token['lemma'] == 'cannot' or root.token['lemma'] == "can't":
                     if current_index in negation_found:
                         negation_found[current_index][1] += 1
                     else:
