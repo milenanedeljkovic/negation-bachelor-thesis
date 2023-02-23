@@ -212,7 +212,7 @@ def get_contextual_embeddings(path: str, device):
 
         # current_verbs are now filled
         for index in negation_found:
-            lemma = phrase[index - 1]['lemma']
+            lemma = phrase[index - 1]['lemma'].lower()
 
             start, end = token_mapping[index - 1]  # localizing the verb in the RoBERTa tokenization
 
