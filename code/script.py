@@ -199,8 +199,12 @@ def get_contextual_embeddings(path: str, device):
             representations = representations.detach().cpu()
 
         # getting the stanza to RoBERTa token map
-        token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
-                                              tokenizer)
+        try:
+            token_mapping = stanza_to_bert_tokens(phrase, tokenizer(phrase_tree.metadata['text'])['input_ids'],
+                                                  tokenizer)
+        except:
+            print(f"Token mapping error on sentence: {phrase}")
+            continue
 
         negation_found = {}  # Dict[int, [int, int]], maps the index of a verb to  a tuple (num_aux, num_negations) -
         # the number of auxiliaries and the number of negations of the verb)
@@ -208,7 +212,11 @@ def get_contextual_embeddings(path: str, device):
         clause_found = False
         # depth first search from the tree: see function above
 
-        depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
+        try:
+            depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
+        except:
+            print(f"Analysing error on phrase {phrase}")
+            continue
 
         # current_verbs are now filled
         for index in negation_found:
