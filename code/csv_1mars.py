@@ -37,7 +37,11 @@ for i in range(500000, 500001, 10000):
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
 
-for i in range(520000, 750001, 10000):
+for i in range(520000, 630001, 10000):
+    next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
+    dict = merge_dict(dict, next_dict)
+
+for i in range(650000, 750001, 10000):
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
 
