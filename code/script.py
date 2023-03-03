@@ -89,7 +89,7 @@ def get_contextual_embeddings(path: str, device):
 
     # we find negation cues by depth-first search through the tree
     # jump below the function definition
-    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int, in_clause: bool) -> dict:
+    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int, in_clause: bool, n: int = 0) -> dict:
         """Input:
         - root: the (sub)tree in which we are looking for negation
         - current_verb: if we encounter negation, this is the lemma of the verb that is negated.
@@ -98,7 +98,10 @@ def get_contextual_embeddings(path: str, device):
         Passing both current_verb and current_index to omit the search for the index's lemma in the tree.
         We need the index to be able to localize the tokens of the verb in RoBERTa tokenization and the lemma to be able
         to fill in verb_embeddings
-        - in_clause: True if we are in a dependent clause"""
+        - in_clause: True if we are in a dependent clause
+        - n: recursion depth"""
+        if n  >= sys.getrecursionlimit():
+            return 1
         nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
         nonlocal negation_found  # will be initialized for each phrase; dictionary that tells us
         # whether negation was found for each verb lemma (for each auxilary)
@@ -124,9 +127,9 @@ def get_contextual_embeddings(path: str, device):
                         if not clause_found:
                             num_complex_ph += 1
                             clause_found = True
-                        depth_search(child, root.token['lemma'], root.token['id'], True)
+                        depth_search(child, root.token['lemma'], root.token['id'], True, n + 1)
                     else:
-                        depth_search(child, root.token['lemma'], root.token['id'], False)
+                        depth_search(child, root.token['lemma'], root.token['id'], False, n + 1)
 
         else:  # we haven't found negation and root is not a verb
             # we iterate through the root's children, not changing the other parameters
@@ -158,9 +161,9 @@ def get_contextual_embeddings(path: str, device):
                         if not clause_found:
                             num_complex_ph += 1
                             clause_found = True
-                        depth_search(child, current_verb, current_index, True)
+                        depth_search(child, current_verb, current_index, True, n + 1)
                     else:
-                        depth_search(child, current_verb, current_index, False)
+                        depth_search(child, current_verb, current_index, False, n + 1)
 
     # reading the file from path
     f = open(path)
@@ -213,7 +216,10 @@ def get_contextual_embeddings(path: str, device):
         # depth first search from the tree: see function above
 
         try:
-            depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
+            lim = depth_search(phrase_tree, phrase_tree.token['lemma'], phrase_tree.token['id'], False)
+            if lim is not None:
+                print(f"Recursion depth exceeded at sentence {phrase}")
+                continue
         except:
             print(f"Analysing error on phrase {phrase}")
             continue
