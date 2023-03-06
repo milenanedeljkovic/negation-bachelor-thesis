@@ -10,7 +10,7 @@ from torch.nn.functional import normalize
 
 
 def merge_dict(dict1, dict2):
-    """Merges two dictionaries as created in script.py and written in files in embeddings-avg"""
+    """Merges two dictionaries as created in collect_context_representations.py and written in files in embeddings-avg"""
     for key in dict2:
         if key in dict1:
             dict1[key] = [dict1[key][i] + dict2[key][i] for i in range(len(dict1[key]))]

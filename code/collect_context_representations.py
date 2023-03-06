@@ -109,7 +109,7 @@ def get_contextual_embeddings(path: str, device):
         # we have "for phrase in dependency_trees")
         # only needed for localizing "no more"
 
-        # the three following variables are initialized in script.py
+        # the three following variables are initialized in collect_context_representations.py
         nonlocal num_complex_ph
         nonlocal num_neg
         nonlocal num_negations_in_dependent_cl
