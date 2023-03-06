@@ -183,6 +183,7 @@ def get_contextual_embeddings(path: str, device):
     model.to(device)
 
     for phrase in dep_trees:
+        print(phrase)
         num_ph += 1
         if num_ph % 10000 == 0:
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
