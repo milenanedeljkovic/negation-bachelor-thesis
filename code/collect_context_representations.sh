@@ -1,7 +1,5 @@
-first = $1
-second = $2
-
-for i in {first..second..10000}
+for i in {10000..100001..10000}
 do
-  python3 collect_context_representations.py i i + 1
+  j=i+1
+  python3 "collect_context_representations.py $i $j"
 done
