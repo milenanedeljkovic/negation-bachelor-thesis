@@ -9,6 +9,7 @@ import torch
 from datetime import datetime
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+rec_depth = sys.getrecursionlimit()
 
 def txt_to_conll(text: str, nlp):
     """Input:
@@ -100,7 +101,7 @@ def get_contextual_embeddings(path: str, device):
         to fill in verb_embeddings
         - in_clause: True if we are in a dependent clause
         - n: recursion depth"""
-        if n  >= sys.getrecursionlimit():
+        if n >= sys.getrecursionlimit() - 1:
             return 1
         nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
         nonlocal negation_found  # will be initialized for each phrase; dictionary that tells us
