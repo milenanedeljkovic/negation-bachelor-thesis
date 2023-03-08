@@ -101,14 +101,15 @@ def get_contextual_embeddings(path: str, device):
         to fill in verb_embeddings
         - in_clause: True if we are in a dependent clause
         - n: current recursion depth"""
+        nonlocal phrase  # this is the linearized tree (phrase in the first for loop -
+        # we have "for phrase in dependency_trees")
+        # only needed for localizing "no more" and "no longer"
         if n >= rec_depth:
+            print(f"Discarded: {phrase}\nExceeded recursion depth.")
             return 1
         nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
         nonlocal negation_found  # will be initialized for each phrase; dictionary that tells us
         # whether negation was found for each verb lemma (for each auxilary)
-        nonlocal phrase  # this is the linearized tree (phrase in the first for loop -
-        # we have "for phrase in dependency_trees")
-        # only needed for localizing "no more"
 
         # the three following variables are initialized in collect_context_representations.py
         nonlocal num_complex_ph
@@ -190,9 +191,6 @@ def get_contextual_embeddings(path: str, device):
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             # print(f"Memory usage: {torch.cuda.memory_allocated(device)}")
             torch.cuda.empty_cache()
-
-        if num_ph > 290000:
-            print(phrase)
 
         phrase_tree = phrase.to_tree()
 
