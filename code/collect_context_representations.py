@@ -90,7 +90,7 @@ def get_contextual_embeddings(path: str, device):
 
     # we find negation cues by depth-first search through the tree
     # jump below the function definition
-    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int, in_clause: bool, n: int = 0) -> dict:
+    def depth_search(root: conllu.models.TokenTree, current_verb: str, current_index: int, in_clause: bool, n: int = 1) -> dict:
         """Input:
         - root: the (sub)tree in which we are looking for negation
         - current_verb: if we encounter negation, this is the lemma of the verb that is negated.
@@ -100,8 +100,8 @@ def get_contextual_embeddings(path: str, device):
         We need the index to be able to localize the tokens of the verb in RoBERTa tokenization and the lemma to be able
         to fill in verb_embeddings
         - in_clause: True if we are in a dependent clause
-        - n: recursion depth"""
-        if n >= sys.getrecursionlimit() - 1:
+        - n: current recursion depth"""
+        if n >= rec_depth:
             return 1
         nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
         nonlocal negation_found  # will be initialized for each phrase; dictionary that tells us
