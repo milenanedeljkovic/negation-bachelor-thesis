@@ -190,6 +190,9 @@ def get_contextual_embeddings(path: str, device):
             # print(f"Memory usage: {torch.cuda.memory_allocated(device)}")
             torch.cuda.empty_cache()
 
+        if num_ph > 290000:
+            print(phrase)
+
         phrase_tree = phrase.to_tree()
 
         if 'lemma' not in phrase_tree.token.keys() or 'id' not in phrase_tree.token.keys():
