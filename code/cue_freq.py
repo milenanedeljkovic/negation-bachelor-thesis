@@ -27,6 +27,8 @@ def neg_cue_frequency(path: str):
             elif word['lemma'] == 'longer' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no':
                 num_longer += 1
 
+    return num_not, num_never, num_more, num_longer
+
 
 with torch.no_grad():
     lower, upper = int(sys.argv[1]), int(sys.argv[2])
@@ -34,6 +36,7 @@ with torch.no_grad():
     tot_not, tot_never, tot_more, tot_longer = 0, 0, 0, 0
 
     for first_page in range(lower, upper, 10000):
+        print(f"{first_page} started at {datetime.time()}")
         dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
 
         if not os.path.isfile(dependency_trees):
