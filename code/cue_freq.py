@@ -24,7 +24,7 @@ def neg_cue_frequency(path: str):
                 num_never += 1
             elif word['lemma'] == 'more' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no':
                 num_more += 1
-            elif word['lemma'] == 'longer' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no'
+            elif word['lemma'] == 'longer' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no':
                 num_longer += 1
 
 
