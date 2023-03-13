@@ -104,7 +104,7 @@ def get_contextual_embeddings(path: str, device):
         nonlocal phrase  # this is the linearized tree (phrase in the first for loop -
         # we have "for phrase in dependency_trees")
         # only needed for localizing "no more" and "no longer"
-        if n >= rec_depth:
+        if n >= rec_depth - 1:
             print(f"Discarded: {phrase}\nExceeded recursion depth.")
             return 1
         nonlocal representations  # will be initialized for each phrase; the RoBERTa encoding
@@ -191,8 +191,11 @@ def get_contextual_embeddings(path: str, device):
             print(f"{num_ph} at {datetime.now().strftime('%H:%M:%S')}")
             # print(f"Memory usage: {torch.cuda.memory_allocated(device)}")
             torch.cuda.empty_cache()
-
-        phrase_tree = phrase.to_tree()
+        try:
+            phrase_tree = phrase.to_tree()
+        except:
+            print(f"Can't build tree for phrase {phrase}.")
+            continue
 
         if 'lemma' not in phrase_tree.token.keys() or 'id' not in phrase_tree.token.keys():
             continue

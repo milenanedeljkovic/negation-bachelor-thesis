@@ -25,6 +25,8 @@ dict = {}
 cossim = torch.nn.CosineSimilarity(dim=0)
 
 for i in range(first, last, 10000):
+    if not f"embeddings-avg/embeddings-avg{i}".is_file():
+        continue
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
     with open(f"csv_files/from{first}-from{i}.csv", "w") as file:
