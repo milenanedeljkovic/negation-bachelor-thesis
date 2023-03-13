@@ -25,7 +25,7 @@ dict = {}
 cossim = torch.nn.CosineSimilarity(dim=0)
 
 for i in range(first, last, 10000):
-    if not os.path.is_file(f"embeddings-avg/embeddings-avg{i}"):
+    if not os.path.isfile(f"embeddings-avg/embeddings-avg{i}"):
         continue
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
