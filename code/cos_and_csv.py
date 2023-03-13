@@ -2,7 +2,7 @@ import csv
 import torch
 import sys
 from torch.nn.functional import normalize
-
+import os
 # This script incrementally merges dictionaries containing average representations of verbs
 # and makes a new csv file at each step. It processed the first 10000 pages, writes them into a .csv file,
 # then merges the next 10000 and writes the merged information into a new .csv files and so on.
@@ -25,7 +25,7 @@ dict = {}
 cossim = torch.nn.CosineSimilarity(dim=0)
 
 for i in range(first, last, 10000):
-    if not f"embeddings-avg/embeddings-avg{i}".is_file():
+    if not os.path.is_file(f"embeddings-avg/embeddings-avg{i}"):
         continue
     next_dict = torch.load(f"embeddings-avg/embeddings-avg{i}")
     dict = merge_dict(dict, next_dict)
