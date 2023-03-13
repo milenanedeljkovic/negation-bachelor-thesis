@@ -36,7 +36,7 @@ with torch.no_grad():
     tot_not, tot_never, tot_more, tot_longer = 0, 0, 0, 0
 
     for first_page in range(lower, upper, 10000):
-        print(f"{first_page} started at {datetime.time()}")
+        print(f"{first_page} started at {datetime.now()}")
         dependency_trees = f"parsed/parsed{first_page}.conll"  # the file with parsed phrases
 
         if not os.path.isfile(dependency_trees):
