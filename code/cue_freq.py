@@ -41,6 +41,7 @@ with torch.no_grad():
 
         if not os.path.isfile(dependency_trees):
             print(f"Not a file: {dependency_trees}")
+            continue
 
         nn, nnv, nm, nl = neg_cue_frequency(dependency_trees)
 
