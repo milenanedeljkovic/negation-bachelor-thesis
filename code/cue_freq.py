@@ -53,8 +53,8 @@ with torch.no_grad():
     total = tot_not + tot_never + tot_more + tot_longer
     with open("cue-freq.txt", "w") as file:
         file.write(f"not: {tot_not} ({tot_not / total})\n")
-        file.write(f"not: {tot_never} ({tot_never / total})\n")
-        file.write(f"not: {tot_more} ({tot_more / total})\n")
-        file.write(f"not: {tot_longer} ({tot_longer / total})\n")
+        file.write(f"never: {tot_never} ({tot_never / total})\n")
+        file.write(f"no more: {tot_more} ({tot_more / total})\n")
+        file.write(f"no longer: {tot_longer} ({tot_longer / total})\n")
 
 
