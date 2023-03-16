@@ -19,13 +19,17 @@ def neg_cue_frequency(path: str):
     for phrase in dep_trees:
         for word in phrase:
             if word['lemma'] in ["not", "cannot", "can't"]:
-                num_not += 1
+                if phrase[int(word['head']) - 1]['upos'] == "VERB":
+                    num_not += 1
             elif word['lemma'] == "never":
-                num_never += 1
+                if phrase[int(word['head']) - 1]['upos'] == "VERB":
+                    num_never += 1
             elif word['lemma'] == 'more' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no':
-                num_more += 1
+                if phrase[int(word['head']) - 1]['upos'] == "VERB":
+                    num_more += 1
             elif word['lemma'] == 'longer' and word['id'] > 1 and phrase[word['id'] - 2]['lemma'] == 'no':
-                num_longer += 1
+                if phrase[int(word['head']) - 1]['upos'] == "VERB":
+                    num_longer += 1
 
     return num_not, num_never, num_more, num_longer
 
